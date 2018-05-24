@@ -3,7 +3,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class Client {
+public class Client extends Util {
     Socket connexionServ;
     InputStream inC;
     OutputStream outC;
@@ -16,7 +16,10 @@ public class Client {
         Client c=new Client();
         c.connexion();
         c.initialiserStreams();
-        c.envoyerServeur("bonjour  gentil serveur");
+
+        // c.envoyerServeur("bonjour  gentil serveur");
+        c.test();
+
         c.fermerConnexion();
     }
 
@@ -25,6 +28,13 @@ public class Client {
 
     }
 
+    public void test() {
+        try {
+            this.fileToStream("Test.txt",this.outC);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void connexion(){
         try {
             connexionServ =new Socket(ipServeur,portServeur);

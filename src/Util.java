@@ -1,9 +1,6 @@
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
 import java.net.*;
+
 public class Util {
     Socket socketTCP;
     InetAddress ipRecep; //adresseIP de la derniere personne a avoir envoyé un dp
@@ -14,6 +11,45 @@ public class Util {
 
     protected Util(){
 
+    }
+
+    public void fileToStream(String address, OutputStream out) throws IOException {
+        InputStream in = null;
+        BufferedReader br = null;
+        try {
+            in = new FileInputStream(address);
+            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+
+            int c;
+            while ((c = br.read()) != -1) {
+                out.write(c);
+            }
+            br.close();
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) br.close();
+            if (in != null) in.close();
+        }
+
+    }
+
+    public void streamToFile(InputStream in, String address) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(address);
+
+            byte[] buffer = new byte[2048];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) fos.close();
+        }
     }
 
 /*

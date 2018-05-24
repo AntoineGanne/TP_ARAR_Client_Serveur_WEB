@@ -9,10 +9,10 @@ import java.lang.Byte;
 import java.net.*;
 
 
-public class Serveur {
+public class Serveur extends Util {
+
     private ServerSocket socServ;
     private Socket connexionClient;
-
 
     InputStream inS;
     OutputStream outS;
@@ -23,14 +23,23 @@ public class Serveur {
         Serveur s=new Serveur();
         s.connexion();
         s.initialiserStreams();
-        s.ecouterClient();
 
+        // s.ecouterClient();
+        s.test();
 
         s.fermerConnexion();
     }
 
     public Serveur(){
 
+    }
+
+    public void test() {
+        try {
+            this.streamToFile(inS,"Test2.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     static public List<Byte> lectureFichier(String adressseFichier){
@@ -57,7 +66,6 @@ public class Serveur {
         {
             file_string += (char)input.get(i).intValue();
         }
-
 
         System.out.println(file_string);
         */
