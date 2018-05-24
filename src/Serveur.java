@@ -6,6 +6,7 @@ import java.util.List;
 import java.io.IOException;
 import java.lang.String;
 import java.lang.Byte;
+import java.net.*;
 
 
 public class Serveur {
@@ -24,7 +25,7 @@ public class Serveur {
 
     }
 
-    public List<Byte> lectureFichier(String adressseFichier){
+    static public List<Byte> lectureFichier(String adressseFichier){
         List<Byte>  input =new ArrayList<Byte>();
         int i,b;
         try{
@@ -35,14 +36,24 @@ public class Serveur {
                 input.add((byte)b);
                 b=f.read();
             }
-
+            f.close();
 
         }
         catch(IOException ex){
             System.out.println(ex);
         }
+        /*
+        String file_string = "";
+
+        for( i = 0; i < input.size(); i++)
+        {
+            file_string += (char)input.get(i).intValue();
+        }
 
 
+        System.out.println(file_string);
+        */
+        return input;
     }
 
     private void connexion(){
