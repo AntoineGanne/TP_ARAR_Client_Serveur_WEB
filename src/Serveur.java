@@ -41,7 +41,7 @@ public class Serveur {
         catch(IOException ex){
             System.out.println(ex);
         }
-       
+
 
     }
 
@@ -64,5 +64,4 @@ public class Serveur {
         }
     }
 
->>>>>>> d3e8d28deeab0de2da75cf33937a7d6688918745
 }
