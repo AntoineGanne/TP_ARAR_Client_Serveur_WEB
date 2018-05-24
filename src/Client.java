@@ -54,6 +54,7 @@ public class Client {
     private void envoyerServeur(String requete){
         try {
             outC.write(requete.getBytes());
+            outC.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
