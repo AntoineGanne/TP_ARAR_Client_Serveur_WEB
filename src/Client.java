@@ -15,6 +15,8 @@ public class Client {
     public static void main(String[] args){
         Client c=new Client();
         c.connexion();
+        c.initialiserStreams();
+        c.envoyerServeur("bonjour  gentil serveur");
         c.fermerConnexion();
     }
 
@@ -40,4 +42,20 @@ public class Client {
         }
     }
 
+    private void initialiserStreams(){
+        try {
+            inC=connexionServ.getInputStream();
+            outC=connexionServ.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void envoyerServeur(String requete){
+        try {
+            outC.write(requete.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
