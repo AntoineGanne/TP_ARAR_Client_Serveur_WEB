@@ -1,2 +1,2 @@
-public class Serveur {
+public class Serveur extends Util{
 }
