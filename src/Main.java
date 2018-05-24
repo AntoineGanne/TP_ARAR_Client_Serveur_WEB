@@ -32,7 +32,7 @@ public class Main {
             int length;
             byte[] buffer = new byte[2048];
             while ((length = in.read(buffer)) > 0) {
-                System.out.println();
+                System.out.println((char)length);
                 out.write(buffer, 0, length);
             }
         } catch(IOException e) {
@@ -41,6 +41,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-
+        Serveur.lectureFichier("src/Fichier/test.txt");
     }
 }
