@@ -1,3 +1,4 @@
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -6,7 +7,22 @@ import java.io.IOException;
 import java.lang.String;
 import java.lang.Byte;
 
-public class Serveur extends Util{
+
+public class Serveur {
+    private ServerSocket socServ;
+    private Socket connexionClient;
+
+    private static int portServeur=80;
+
+    public static void main(String[] args){
+        Serveur s=new Serveur();
+        s.connexion();
+        s.fermerConnexion();
+    }
+
+    public Serveur(){
+
+    }
 
     public List<Byte> lectureFichier(String adressseFichier){
         List<Byte>  input =new ArrayList<Byte>();
@@ -26,6 +42,27 @@ public class Serveur extends Util{
             System.out.println(ex);
         }
 
-        System.out.println();
+
     }
+
+    private void connexion(){
+        try {
+            socServ =new ServerSocket(portServeur);
+            connexionClient = socServ.accept();
+            System.out.println("connexion acceptée"+ connexionClient.getInetAddress()+ " port: "+ connexionClient.getPort());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void fermerConnexion(){
+        try {
+            socServ.close();
+            connexionClient.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+>>>>>>> d3e8d28deeab0de2da75cf33937a7d6688918745
 }

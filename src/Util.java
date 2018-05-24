@@ -5,35 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.net.*;
 public class Util {
-    DatagramSocket ds;
+    Socket socketTCP;
     InetAddress ipRecep; //adresseIP de la derniere personne a avoir envoyé un dp
     int portRecep; //port de la derniere personne a avoir envoyé un dp
 
     static int PORT_SERVER=1500;
-    static final int  RQ_DEFAULT=0;
-    static final int RQ_CONNEXION_DEMANDE_TO_SERVER=1;
-    static final int RQ_CONNEXION_DEMANDE_TO_HOST=2;
-    static final int RQ_CONNEXION_ACCEPTE_SERVER=3;
-    static final int RQ_CONNEXION_ACCEPTE_HOST=4;
-    static final int RQ_CONNEXION_REFUSEE=5;
-    static final int RQ_ADD_ADRESS=6;
-    static final int RQ_COM_MESSAGE=7;
+
 
     protected Util(){
-        try {
-            ds=new DatagramSocket();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
-    }
-    protected Util(int port){
-        try {
-            ds=new DatagramSocket(port);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+
     }
 
+/*
     protected void envoyer(String data,String ip, int port){
         try {
             InetAddress a =InetAddress.getByName(ip);
@@ -107,5 +90,6 @@ public class Util {
         return ds.getLocalPort();
     }
 
+*/
 
 }
