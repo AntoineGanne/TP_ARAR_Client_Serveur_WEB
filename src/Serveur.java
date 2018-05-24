@@ -1,8 +1,16 @@
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.lang.String;
+import java.lang.Byte;
+
 
 public class Serveur {
     private ServerSocket socServ;
@@ -25,6 +33,27 @@ public class Serveur {
     }
 
     public Serveur(){
+
+    }
+
+    public List<Byte> lectureFichier(String adressseFichier){
+        List<Byte>  input =new ArrayList<Byte>();
+        int i,b;
+        try{
+            FileInputStream f= new FileInputStream(adressseFichier);
+            b=f.read();
+            for (i = 0; b!=-1; i++) {
+
+                input.add((byte)b);
+                b=f.read();
+            }
+
+
+        }
+        catch(IOException ex){
+            System.out.println(ex);
+        }
+
 
     }
 
