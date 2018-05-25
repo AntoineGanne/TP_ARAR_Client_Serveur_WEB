@@ -6,14 +6,61 @@ public class Util {
     InetAddress ipRecep; //adresseIP de la derniere personne a avoir envoyé un dp
     int portRecep; //port de la derniere personne a avoir envoyé un dp
 
-    static int PORT_SERVER=1500;
+    protected InputStream in;
+    protected OutputStream out;
 
+    protected final static int portServeur = 80;
+    protected final static String ipServeur = "127.0.0.1";
+    protected Socket connexion;
 
-    protected Util(){
-
+    protected Util() {
     }
 
-    public void fileToStream(String address, OutputStream out) throws IOException {
+    /**
+     * Permet d'initialiser une connexion avec un autre utilisateur,
+     * en général d'un client à un serveur.
+     * @param ip Adresse IP de l'utilisateur avec lequel se connecter.
+     * @param port Port de l'utilisateur sur lequel on se connecte.
+     */
+    public void connexion(String ip, int port) {
+        try {
+            System.out.println("Connexion avec le serveur " + ipServeur + " initialisée sur le port " + portServeur);
+            connexion = new Socket(ip, port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Permet d'intiialiser les flux d'entrée et de sortie de l'utilisateur.
+     */
+    public void initialiserStreams(){
+        try {
+            in = connexion.getInputStream();
+            out = connexion.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Permet de fermer la connexion avec un autre utilisateur.
+     */
+    protected void fermerConnexion(){
+        try {
+            connexion.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Permet d'envoyer un fichier à un autre utilisateur.
+     * Les données du fichier sont stockés dans le flux d'entrée du socket du destinataire.
+     * @param address Adresse du fichier à envoyer (depuis le poste de l'émetteur)
+     * @throws IOException En cas de problème de fermerture du reader ou des flux.
+     */
+    public void fileToStream(String address) throws IOException {
         InputStream in = null;
         BufferedReader br = null;
         try {
@@ -26,6 +73,7 @@ public class Util {
             }
             br.close();
             out.flush();
+            System.out.println("Fichier envoyé vers " + ipServeur);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -35,7 +83,13 @@ public class Util {
 
     }
 
-    public void streamToFile(InputStream in, String address) throws IOException {
+    /**
+     * Permet de récupérer le fichier reçu dans le flux d'entrée du socket
+     * et de le stocker dans le poste de l'utilisateur.
+     * @param address Adresse vers laquelle stocker le fichier reçu.
+     * @throws IOException En cas de problème de fermeture du flux de sortie du fichier.
+     */
+    public void streamToFile(String address) throws IOException {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(address);
@@ -45,6 +99,7 @@ public class Util {
             while ((length = in.read(buffer)) > 0) {
                 fos.write(buffer, 0, length);
             }
+            System.out.println("Fichier récupéré.");
         } catch(IOException e) {
             e.printStackTrace();
         } finally {
