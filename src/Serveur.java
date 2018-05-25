@@ -1,117 +1,121 @@
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.lang.String;
-import java.lang.Byte;
-import java.net.*;
-
+import java.util.StringTokenizer;
 
 public class Serveur extends Util {
 
     private ServerSocket socServ;
-    private Socket connexionClient;
-
-    InputStream inS;
-    OutputStream outS;
-
-    private static int portServeur=80;
 
     public static void main(String[] args){
-        Serveur s=new Serveur();
-        s.connexion();
-        s.initialiserStreams();
+        Serveur s = new Serveur();
+        s.connexion(portServeur);
+        try {
+            s.listen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        // s.ecouterClient();
-        s.test();
+        /*
+        try {
+            s.streamToFile("TestClient.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
 
-        s.fermerConnexion();
+        // s.fermerConnexion();
     }
 
     public Serveur(){
-
+        super();
     }
 
-    public void test() {
+    /**
+     * Permet à un utilisateur de servir de serveur et d'accepter
+     * ainsi la connexion d'un autre utilisateur.
+     * @param  port Port du serveur sur lequel on autorise une connexion d'un utilisateur.
+     */
+    public void connexion(int port) {
+        System.out.println("Démarrage du serveur " + ipServeur);
+        System.out.println("Ouverture du port " + portServeur);
+        System.out.println("--------------------");
         try {
-            this.streamToFile(inS,"Test2.txt");
+            socServ = new ServerSocket(port);
+            connexion = socServ.accept();
+            initialiserStreams();
+            System.out.println("Connexion acceptée avec " + connexion.getInetAddress()+ " sur le port " + connexion.getPort());
+            System.out.println("--------------------");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    static public List<Byte> lectureFichier(String adressseFichier){
-        List<Byte>  input =new ArrayList<Byte>();
-        int i,b;
-        try{
-            FileInputStream f= new FileInputStream(adressseFichier);
-            b=f.read();
-            for (i = 0; b!=-1; i++) {
-
-                input.add((byte)b);
-                b=f.read();
-            }
-            f.close();
-
-        }
-        catch(IOException ex){
-            System.out.println(ex);
-        }
-        /*
-        String file_string = "";
-
-        for( i = 0; i < input.size(); i++)
-        {
-            file_string += (char)input.get(i).intValue();
-        }
-
-        System.out.println(file_string);
-        */
-        return input;
-    }
-
-    private void connexion(){
-        try {
-            socServ =new ServerSocket(portServeur);
-            connexionClient = socServ.accept();
-            System.out.println("connexion acceptée"+ connexionClient.getInetAddress()+ " port: "+ connexionClient.getPort());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void fermerConnexion(){
+    public void fermerConnexion(){
         try {
             socServ.close();
-            connexionClient.close();
+            super.fermerConnexion();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void initialiserStreams(){
+    /**
+     * Permet au serveur d'envoyer un fichier à un client.
+     * Les données du fichier sont stockées dans le flux d'entrée du socket du client.
+     * @param address Adresse du fichier à envoyer (depuis le poste de l'émetteur)
+     * @throws IOException
+     */
+    public void fileFromServerToClient(String address) throws IOException {
+        FileInputStream fis = null;
+        BufferedReader br = null;
+        String response;
         try {
-            inS=connexionClient.getInputStream();
-            outS=connexionClient.getOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            fis = new FileInputStream(address);
+            br = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
+            response = "HTTP/1.0 200 OK" + CRLF + CRLF;
+            out.write(response.getBytes());
 
-    private String ecouterClient(){
-        try {
-            char s=(char)inS.read();
-            while(s!=-1){
-               System.out.print(s);
-               s=(char)inS.read();
+            int c;
+            while ((c = br.read()) != -1) {
+                out.write(c);
             }
+        } catch (FileNotFoundException e) {
+            response = "HTTP/1.0 404 Not Found" + CRLF + CRLF;
+            out.write(response.getBytes());
+        } finally {
+            out.flush();
+            if (br != null) br.close();
+            if (fis != null) fis.close();
+        }
+    }
+
+    // TODO : la partie "le serveur répond au client" ne marche pas...
+    public void listen() throws IOException {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+            String header;
+            StringTokenizer st;
+            //while (true) {
+                header = br.readLine();
+                if (header != null && !header.equals(CRLF) && !header.equals("")) {
+                    System.out.println(header);
+                    st = new StringTokenizer(header);
+                    out.write("prout".getBytes());
+                    out.flush();
+
+                    if (st.nextToken().equals("GET")) {
+                        String address = st.nextToken();
+                        // fileFromServerToClient(address);
+                    }
+                }
+            //}
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (br != null) br.close();
         }
-
-        return "yo yo yo";
     }
 
 }
