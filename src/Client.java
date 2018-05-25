@@ -1,72 +1,49 @@
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.util.StringTokenizer;
 
 public class Client extends Util {
-    Socket connexionServ;
-    InputStream inC;
-    OutputStream outC;
 
-    private static int portServeur=80;
+    public static void main(String[] args) {
+        Client c = new Client();
+        c.connexion(ipServeur, portServeur);
+        c.send("GET TestServeur.txt HTTP/1.1");
 
-    private static String ipServeur="127.0.0.1";
+        /*
+        try {
+            c.listen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
 
-    public static void main(String[] args){
-        Client c=new Client();
-        c.connexion();
-        c.initialiserStreams();
-
-        // c.envoyerServeur("bonjour  gentil serveur");
-        c.test();
+        /*
+        try {
+            c.fileToStream("TestServeur.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
 
         c.fermerConnexion();
     }
 
-
-    Client(){
-
-    }
-
-    public void test() {
+    //TODO: Je n'arrive pas à faire en sorte que le client puisse écouter la réponse du serveur.
+    public void listen() throws IOException {
+        BufferedReader br = null;
         try {
-            this.fileToStream("Test.txt",this.outC);
+            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+            String line;
+            line = br.readLine();
+            System.out.println(line);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-    private void connexion(){
-        try {
-            connexionServ =new Socket(ipServeur,portServeur);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void fermerConnexion(){
-        try {
-            connexionServ.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } finally {
+            if (br != null) br.close();
         }
     }
 
-    private void initialiserStreams(){
-        try {
-            inC=connexionServ.getInputStream();
-            outC=connexionServ.getOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void envoyerServeur(String requete){
-        try {
-            outC.write(requete.getBytes());
-            outC.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Client(){
+        super();
     }
 }

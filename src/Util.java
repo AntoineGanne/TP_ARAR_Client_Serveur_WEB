@@ -2,16 +2,19 @@ import java.io.*;
 import java.net.*;
 
 public class Util {
+    /*
     Socket socketTCP;
     InetAddress ipRecep; //adresseIP de la derniere personne a avoir envoyé un dp
     int portRecep; //port de la derniere personne a avoir envoyé un dp
-
-    protected InputStream in;
-    protected OutputStream out;
+    */
 
     protected final static int portServeur = 80;
     protected final static String ipServeur = "127.0.0.1";
     protected Socket connexion;
+    protected InputStream in;
+    protected OutputStream out;
+
+    final static String CRLF = "\r\n";
 
     protected Util() {
     }
@@ -19,15 +22,19 @@ public class Util {
     /**
      * Permet d'initialiser une connexion avec un autre utilisateur,
      * en général d'un client à un serveur.
+     * Ouvre de plus les flux si la connexion s'est effectuée.
      * @param ip Adresse IP de l'utilisateur avec lequel se connecter.
      * @param port Port de l'utilisateur sur lequel on se connecte.
+     * @see #initialiserStreams()
+     *
      */
     public void connexion(String ip, int port) {
         try {
             System.out.println("Connexion avec le serveur " + ipServeur + " initialisée sur le port " + portServeur);
             connexion = new Socket(ip, port);
+            initialiserStreams();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("HTTP/1.0 404 Not Found" + CRLF);
         }
     }
 
@@ -55,40 +62,52 @@ public class Util {
     }
 
     /**
+     * Permet d'envoyer un message à un autre utilisateur,
+     * en général une requête d'un client à un serveur.
+     * @param request Message à envoyer.
+     */
+    public void send(String request) {
+        try {
+            out.write(request.getBytes());
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Permet d'envoyer un fichier à un autre utilisateur.
-     * Les données du fichier sont stockés dans le flux d'entrée du socket du destinataire.
+     * Les données du fichier sont stockées dans le flux d'entrée du socket du destinataire.
      * @param address Adresse du fichier à envoyer (depuis le poste de l'émetteur)
-     * @throws IOException En cas de problème de fermerture du reader ou des flux.
+     * @throws IOException
      */
     public void fileToStream(String address) throws IOException {
-        InputStream in = null;
+        FileInputStream fis = null;
         BufferedReader br = null;
         try {
-            in = new FileInputStream(address);
-            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+            fis = new FileInputStream(address);
+            br = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
 
             int c;
             while ((c = br.read()) != -1) {
                 out.write(c);
             }
-            br.close();
             out.flush();
-            System.out.println("Fichier envoyé vers " + ipServeur);
-        } catch (IOException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally {
             if (br != null) br.close();
-            if (in != null) in.close();
+            if (fis != null) fis.close();
         }
-
     }
 
     /**
      * Permet de récupérer le fichier reçu dans le flux d'entrée du socket
      * et de le stocker dans le poste de l'utilisateur.
      * @param address Adresse vers laquelle stocker le fichier reçu.
-     * @throws IOException En cas de problème de fermeture du flux de sortie du fichier.
+     * @throws IOException
      */
+    //TODO : Ne marche que si le fichier est existant.
     public void streamToFile(String address) throws IOException {
         FileOutputStream fos = null;
         try {
@@ -107,6 +126,18 @@ public class Util {
         }
     }
 
+    /**
+     * Permet de récupérer les datas dans le flux d'entrée du socket
+     * et de l'afficher dans la console.
+     * @throws IOException En cas de problème de fermeture du reader.
+     */
+    public void listen() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+        String data;
+        while ((data = br.readLine()) != null) {
+            System.out.println(data);
+        }
+    }
 /*
     protected void envoyer(String data,String ip, int port){
         try {
