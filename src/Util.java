@@ -16,27 +16,7 @@ public class Util {
 
     final static String CRLF = "\r\n";
 
-    protected Util() {
-    }
-
-    /**
-     * Permet d'initialiser une connexion avec un autre utilisateur,
-     * en général d'un client à un serveur.
-     * Ouvre de plus les flux si la connexion s'est effectuée.
-     * @param ip Adresse IP de l'utilisateur avec lequel se connecter.
-     * @param port Port de l'utilisateur sur lequel on se connecte.
-     * @see #initialiserStreams()
-     *
-     */
-    public void connexion(String ip, int port) {
-        try {
-            System.out.println("Connexion avec le serveur " + ipServeur + " initialisée sur le port " + portServeur);
-            connexion = new Socket(ip, port);
-            initialiserStreams();
-        } catch (IOException e) {
-            System.out.println("HTTP/1.0 404 Not Found" + CRLF);
-        }
-    }
+    protected Util() {}
 
     /**
      * Permet d'intiialiser les flux d'entrée et de sortie de l'utilisateur.
@@ -107,7 +87,7 @@ public class Util {
      * @param address Adresse vers laquelle stocker le fichier reçu.
      * @throws IOException
      */
-    //TODO : Ne marche que si le fichier est existant.
+    //TODO : Ne marche que si le fichier de destination est existant.
     public void streamToFile(String address) throws IOException {
         FileOutputStream fos = null;
         try {
@@ -118,7 +98,6 @@ public class Util {
             while ((length = in.read(buffer)) > 0) {
                 fos.write(buffer, 0, length);
             }
-            System.out.println("Fichier récupéré.");
         } catch(IOException e) {
             e.printStackTrace();
         } finally {
@@ -126,18 +105,6 @@ public class Util {
         }
     }
 
-    /**
-     * Permet de récupérer les datas dans le flux d'entrée du socket
-     * et de l'afficher dans la console.
-     * @throws IOException En cas de problème de fermeture du reader.
-     */
-    public void listen() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
-        String data;
-        while ((data = br.readLine()) != null) {
-            System.out.println(data);
-        }
-    }
 /*
     protected void envoyer(String data,String ip, int port){
         try {
