@@ -8,7 +8,10 @@ public class Client extends Util {
         Client c = new Client();
         c.connexion(ipServeur, portServeur);
 
+        //c.imageToStream("src/Fichier/yugioh.jpg");
+
         try {
+            //c.fileToStream("src/Fichier/TestServeur.txt");
             c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
         } catch (IOException e) {
             e.printStackTrace();
@@ -21,7 +24,6 @@ public class Client extends Util {
 
     /**
      * Permet d'initialiser une connexion avec un serveur.
-     * Ouvre de plus les flux si la connexion s'est effectuée.
      * @param ip Adresse IP de l'utilisateur avec lequel se connecter.
      * @param port Port de l'utilisateur sur lequel on se connecte.
      * @see #initialiserStreams()
@@ -37,13 +39,12 @@ public class Client extends Util {
     }
 
     /**
-     * Permet au client d'envoyer au serveur sur lequel il s'est connecté
-     * une demande de fichier.
+     * Permet au client d'envoyer au serveur une demande de fichier et de
+     * récupérer le contenu de celui-ci lorsque le serveur lui a répondu.
      * @param request Requête à envoyer au serveur.
      * @throws IOException
      */
     public void sendGet(String request) throws IOException {
-        request += CRLF;
         BufferedReader br = null;
         try {
             super.send(request);

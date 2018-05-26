@@ -6,14 +6,16 @@ import java.util.StringTokenizer;
 
 public class Serveur extends Util {
 
-    // Pas sûr que ça vale le coup de mettre ça en attribut...
     private ServerSocket socServ;
 
     public static void main(String[] args) {
         Serveur s = new Serveur();
         s.connexion(portServeur);
+
         try {
+            //s.streamToFile("src/Fichier/TestClient.txt");
             s.listen();
+            //s.streamToImage("src/Fichier/test.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -44,6 +46,9 @@ public class Serveur extends Util {
         }
     }
 
+    /**
+     * Ferme la connexion avec le client.
+     */
     public void fermerConnexion() {
         try {
             socServ.close();
@@ -54,7 +59,7 @@ public class Serveur extends Util {
     }
 
     /**
-     * Permet au serveur d'écouter une requête de son client.
+     * Permet au serveur d'écouter une requête de son client et de la traîter.
      * @throws IOException
      * @see #fileFromServerToClient(String)
      * @see #getResponse(int)
@@ -68,20 +73,28 @@ public class Serveur extends Util {
             String request;
             StringTokenizer st;
 
+            // On récupère la requête du client.
             request = br.readLine();
             if (request != null && !request.equals(CRLF) && !request.equals("")) {
                 System.out.println(request);
-                st = new StringTokenizer(request);
 
-                String command = st.nextToken();
-                if (command.equals("GET") || command.equals("PUT")) {
-                    if (command.equals("GET")) {
+                // On sépare la requête mot par mot.
+                st = new StringTokenizer(request);
+                // On récupère la méthode souhaitée (premier mot).
+                String method = st.nextToken();
+                // Si la méthode est reconnue, on traîte la requête.
+                if (method.equals("GET") || method.equals("PUT")) {
+                    if (method.equals("GET")) {
+                        // On récupère le second mot de la requête : l'URI.
                         String address = st.nextToken();
                         fileFromServerToClient(address);
-                    } else if (command.equals("PUT")) {
+                    } else if (method.equals("PUT")) {
                         System.out.println("A faire...");
                     }
-                } else {
+                }
+                /* Si la requête ne commence pas par une méthode reconnue on renvoie au client
+                l'erreur 501. */
+                else {
                     send(getResponse(501));
                 }
             }
@@ -93,8 +106,7 @@ public class Serveur extends Util {
     }
 
     /**
-     * Permet au serveur d'envoyer un fichier à un client.
-     * Les données du fichier sont stockées dans le flux d'entrée du socket du client.
+     * Permet au serveur de traîter la demande de fichier d'un client.
      * @param address Adresse du fichier à envoyer (depuis le poste de l'émetteur)
      * @throws IOException
      * @see #getResponse(int)
@@ -125,7 +137,7 @@ public class Serveur extends Util {
     }
 
     /**
-     * Permet de construire une réponse du serveur à partir du code.
+     * Permet de construire une réponse du serveur à partir du code HTTP.
      * @param code Code HTTP
      * @return Réponse
      */
@@ -152,9 +164,9 @@ public class Serveur extends Util {
     }
 
     /**
-     * Permet de construire une réponse du serveur à partir du code et son addresse.
+     * Permet de construire une réponse du serveur à partir du code et son URI.
      * @param code Code HTTP
-     * @param address Adresse du fichier (contenant son extension).
+     * @param address URI
      * @return Réponse
      */
     public String getResponse(int code, String address) {
