@@ -1,117 +1,216 @@
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.lang.String;
-import java.lang.Byte;
-import java.net.*;
-
+import java.util.Date;
+import java.util.StringTokenizer;
 
 public class Serveur extends Util {
 
     private ServerSocket socServ;
-    private Socket connexionClient;
 
-    InputStream inS;
-    OutputStream outS;
+    public static void main(String[] args) {
+        Serveur s = new Serveur();
+        s.connexion(portServeur);
 
-    private static int portServeur=80;
-
-    public static void main(String[] args){
-        Serveur s=new Serveur();
-        s.connexion();
-        s.initialiserStreams();
-
-        // s.ecouterClient();
-        s.test();
-
-        s.fermerConnexion();
-    }
-
-    public Serveur(){
-
-    }
-
-    public void test() {
         try {
-            this.streamToFile(inS,"Test2.txt");
+            //s.streamToFile("src/Fichier/TestClient.txt");
+            s.listen();
+            //s.streamToImage("src/Fichier/test.jpg");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // s.fermerConnexion();
+    }
+
+    public Serveur() { super(); }
+
+    /**
+     * Permet à un utilisateur de servir de serveur et d'accepter
+     * ainsi la connexion d'un autre utilisateur.
+     * @param port Port du serveur sur lequel on autorise une connexion d'un utilisateur.
+     * @see #initialiserStreams()
+     */
+    public void connexion(int port) {
+        System.out.println("Démarrage du serveur " + ipServeur);
+        System.out.println("Ouverture du port " + portServeur);
+        System.out.println("--------------------");
+        try {
+            socServ = new ServerSocket(port);
+            connexion = socServ.accept();
+            initialiserStreams();
+            System.out.println("Connexion acceptée avec " + connexion.getInetAddress() + " sur le port " + connexion.getPort());
+            System.out.println("--------------------");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    static public List<Byte> lectureFichier(String adressseFichier){
-        List<Byte>  input =new ArrayList<Byte>();
-        int i,b;
-        try{
-            FileInputStream f= new FileInputStream(adressseFichier);
-            b=f.read();
-            for (i = 0; b!=-1; i++) {
-
-                input.add((byte)b);
-                b=f.read();
-            }
-            f.close();
-
-        }
-        catch(IOException ex){
-            System.out.println(ex);
-        }
-        /*
-        String file_string = "";
-
-        for( i = 0; i < input.size(); i++)
-        {
-            file_string += (char)input.get(i).intValue();
-        }
-
-        System.out.println(file_string);
-        */
-        return input;
-    }
-
-    private void connexion(){
-        try {
-            socServ =new ServerSocket(portServeur);
-            connexionClient = socServ.accept();
-            System.out.println("connexion acceptée"+ connexionClient.getInetAddress()+ " port: "+ connexionClient.getPort());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void fermerConnexion(){
+    /**
+     * Ferme la connexion avec le client.
+     */
+    public void fermerConnexion() {
         try {
             socServ.close();
-            connexionClient.close();
+            super.fermerConnexion();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void initialiserStreams(){
+    /**
+     * Permet au serveur d'écouter une requête de son client et de la traîter.
+     * @throws IOException
+     * @see #fileFromServerToClient(String)
+     * @see #getResponse(int)
+     */
+    //TODO: Boucler sur plusieurs requêtes.
+    //TODO: Compléter le traîtement des requêtes (PUT / déconnexion) et leurs réponses.
+    public void listen() throws IOException {
+        BufferedReader br = null;
         try {
-            inS=connexionClient.getInputStream();
-            outS=connexionClient.getOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+            String request;
+            StringTokenizer st;
 
-    private String ecouterClient(){
-        try {
-            char s=(char)inS.read();
-            while(s!=-1){
-               System.out.print(s);
-               s=(char)inS.read();
+            // On récupère la requête du client.
+            request = br.readLine();
+            if (request != null && !request.equals(CRLF) && !request.equals("")) {
+                System.out.println(request);
+
+                // On sépare la requête mot par mot.
+                st = new StringTokenizer(request);
+                // On récupère la méthode souhaitée (premier mot).
+                String method = st.nextToken();
+                // Si la méthode est reconnue, on traîte la requête.
+                if (method.equals("GET") || method.equals("PUT")) {
+                    if (method.equals("GET")) {
+                        // On récupère le second mot de la requête : l'URI.
+                        String address = st.nextToken();
+                        fileFromServerToClient(address);
+                    } else if (method.equals("PUT")) {
+                        System.out.println("A faire...");
+                    }
+                }
+                /* Si la requête ne commence pas par une méthode reconnue on renvoie au client
+                l'erreur 501. */
+                else {
+                    send(getResponse(501));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (br != null) br.close();
         }
+    }
 
-        return "yo yo yo";
+    /**
+     * Permet au serveur de traîter la demande de fichier d'un client.
+     * @param address Adresse du fichier à envoyer (depuis le poste de l'émetteur)
+     * @throws IOException
+     * @see #getResponse(int)
+     * @see #getResponse(int, String)
+     */
+    public void fileFromServerToClient(String address) throws IOException {
+        FileInputStream fis = null;
+        BufferedReader br = null;
+        String response;
+        try {
+            fis = new FileInputStream(address);
+            br = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
+            response = getResponse(200, address);
+            out.write(response.getBytes());
+
+            int c;
+            while ((c = br.read()) != -1) {
+                out.write(c);
+            }
+            out.flush();
+        } catch (FileNotFoundException e) {
+            response = getResponse(404);
+            send(response);
+        } finally {
+            if (br != null) br.close();
+            if (fis != null) fis.close();
+        }
+    }
+
+    /**
+     * Permet de construire une réponse du serveur à partir du code HTTP.
+     * @param code Code HTTP
+     * @return Réponse
+     */
+    public String getResponse(int code) {
+        StringBuilder response = new StringBuilder();
+        String contentType = "text/html";
+        switch (code) {
+            case 200:
+                response.append("HTTP/1.0 200 OK" + CRLF);
+                break;
+            case 404:
+                response.append("HTTP/1.0 404 Not Found" + CRLF);
+                break;
+            case 501:
+                response.append("HTTP/1.0 501 Not Implemented" + CRLF);
+                break;
+        }
+        response.append("Server: Java HTTP Server 1.1"  + CRLF);
+        response.append("Date: ").append(new Date()).append(CRLF);
+        response.append("Content-Type: ").append(contentType).append(CRLF);
+        response.append("Connection: keep-alive");
+        response.append(CRLF);
+        return response.toString();
+    }
+
+    /**
+     * Permet de construire une réponse du serveur à partir du code et son URI.
+     * @param code Code HTTP
+     * @param address URI
+     * @return Réponse
+     */
+    public String getResponse(int code, String address) {
+        StringBuilder response = new StringBuilder();
+        String contentType = "text/html";
+        switch (code) {
+            case 200:
+                response.append("HTTP/1.0 200 OK" + CRLF);
+                contentType = getContentType(address);
+                break;
+            case 404:
+                response.append("HTTP/1.0 404 Not Found" + CRLF);
+                break;
+            case 501:
+                response.append("HTTP/1.0 501 Not Implemented" + CRLF);
+                break;
+        }
+        response.append("Server: Java HTTP Server 1.1"  + CRLF);
+        response.append("Date: ").append(new Date()).append(CRLF);
+        response.append("Content-Type: ").append(contentType).append(CRLF);
+        response.append("Connection: keep-alive");
+        response.append(CRLF);
+        return response.toString();
+    }
+
+    /**
+     * Renvoie le MIME d'un document à partir de son nom.
+     * @param address Addresse du fichier.
+     * @return MIME du document.
+     */
+    public String getContentType(String address) {
+        String contentType;
+        if (address.endsWith(".html") || address.endsWith(".htm")) {
+            contentType = "text/html";
+        } else if (address.endsWith(".jpg") || address.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (address.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (address.endsWith(".gif")) {
+            contentType = "image/gif";
+        } else {
+            contentType = "text/plain";
+        }
+        return contentType;
     }
 
 }
