@@ -48,11 +48,11 @@ public class Client extends Util {
      * @throws IOException
      */
     public void sendGet(String request) throws IOException {
-        BufferedReader br = null;
+        //BufferedReader br = null;
         try {
             super.send(request);
 
-            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+            //br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
             String line;
             while ((line = br.readLine()) != null) {
                 System.out.println(line);
@@ -60,7 +60,7 @@ public class Client extends Util {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (br != null) br.close();
+            //if (br != null) br.close();
         }
     }
 

@@ -18,6 +18,7 @@ public class Util {
     protected Socket connexion;
     protected InputStream in;
     protected OutputStream out;
+    protected BufferedReader br;
 
     final static String CRLF = "\r\n";
 
@@ -29,6 +30,7 @@ public class Util {
     public void initialiserStreams(){
         try {
             in = connexion.getInputStream();
+            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
             out = connexion.getOutputStream();
         } catch (IOException e) {
             e.printStackTrace();
