@@ -154,57 +154,7 @@ public class Util {
         }
     }
 
-
-
 /*
-    protected void envoyer(String data,String ip, int port){
-        try {
-            InetAddress a =InetAddress.getByName(ip);
-            envoyer(data,a,port);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void envoyer(String data,InetAddress ip, int port){
-        DatagramPacket dp;
-        try {
-            dp = new DatagramPacket(data.getBytes(),data.length(),ip,port);
-            ds.send(dp);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    protected int ecouterPort(byte[] data){
-        DatagramPacket dp=ecouter(data);
-        return dp.getPort();
-    }
-
-    protected DatagramPacket ecouter(byte[] data){
-        return ecouter(data,false);
-    }
-
-    protected DatagramPacket ecouter(byte[] data,boolean printData){
-        DatagramPacket dp=new DatagramPacket(data,data.length);
-        try {
-            ds.receive(dp);
-            if(printData){
-                String str = new String(data, StandardCharsets.UTF_8);
-                str=str.substring(0,dp.getLength());
-                System.out.println("data:"+str);
-            }
-            ipRecep=dp.getAddress();
-            portRecep=dp.getPort();
-            return dp;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return dp;
-    }
 
     protected void repondre(String data){
         envoyer(data,ipRecep,portRecep);
