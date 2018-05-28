@@ -1,6 +1,9 @@
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.ServerSocket;
 import java.lang.String;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -13,7 +16,6 @@ public class Serveur extends Util {
         s.connexion(portServeur);
 
         try {
-            //s.streamToFile("src/Fichier/TestClient.txt");
             s.listen();
             //s.streamToImage("src/Fichier/test.jpg");
         } catch (IOException e) {
@@ -62,7 +64,6 @@ public class Serveur extends Util {
      * Permet au serveur d'écouter une requête de son client et de la traîter.
      * @throws IOException
      * @see #fileFromServerToClient(String)
-     * @see #getResponse(int)
      */
     //TODO: Boucler sur plusieurs requêtes.
     //TODO: Compléter le traîtement des requêtes (PUT / déconnexion) et leurs réponses.
@@ -87,7 +88,8 @@ public class Serveur extends Util {
                     if (method.equals("GET")) {
                         // On récupère le second mot de la requête : l'URI.
                         String address = st.nextToken();
-                        fileFromServerToClient(address);
+                        if (address.endsWith("html") || (address.endsWith(".txt"))) fileFromServerToClient(address);
+                        if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png")) ) imageFromServerToClient(address);
                     } else if (method.equals("PUT")) {
                         System.out.println("A faire...");
                     }
@@ -95,7 +97,7 @@ public class Serveur extends Util {
                 /* Si la requête ne commence pas par une méthode reconnue on renvoie au client
                 l'erreur 501. */
                 else {
-                    send(getResponse(501));
+                    send(getResponse(501, null));
                 }
             }
         } catch (IOException e) {
@@ -109,7 +111,6 @@ public class Serveur extends Util {
      * Permet au serveur de traîter la demande de fichier d'un client.
      * @param address Adresse du fichier à envoyer (depuis le poste de l'émetteur)
      * @throws IOException
-     * @see #getResponse(int)
      * @see #getResponse(int, String)
      */
     public void fileFromServerToClient(String address) throws IOException {
@@ -128,7 +129,7 @@ public class Serveur extends Util {
             }
             out.flush();
         } catch (FileNotFoundException e) {
-            response = getResponse(404);
+            response = getResponse(404, address);
             send(response);
         } finally {
             if (br != null) br.close();
@@ -136,31 +137,20 @@ public class Serveur extends Util {
         }
     }
 
-    /**
-     * Permet de construire une réponse du serveur à partir du code HTTP.
-     * @param code Code HTTP
-     * @return Réponse
-     */
-    public String getResponse(int code) {
-        StringBuilder response = new StringBuilder();
-        String contentType = "text/html";
-        switch (code) {
-            case 200:
-                response.append("HTTP/1.0 200 OK" + CRLF);
-                break;
-            case 404:
-                response.append("HTTP/1.0 404 Not Found" + CRLF);
-                break;
-            case 501:
-                response.append("HTTP/1.0 501 Not Implemented" + CRLF);
-                break;
+    public void imageFromServerToClient(String address) {
+        BufferedImage img;
+        String response;
+        try {
+            img = ImageIO.read(new File(address));
+            //response = getResponse(200, address);
+            //out.write(response.getBytes());
+            ImageIO.write(img, "jpg", out);
+            out.flush();
+        } catch (IOException e) {
+            //response = getResponse(404);
+            //send(response);
+            e.printStackTrace();
         }
-        response.append("Server: Java HTTP Server 1.1"  + CRLF);
-        response.append("Date: ").append(new Date()).append(CRLF);
-        response.append("Content-Type: ").append(contentType).append(CRLF);
-        response.append("Connection: keep-alive");
-        response.append(CRLF);
-        return response.toString();
     }
 
     /**
@@ -184,11 +174,18 @@ public class Serveur extends Util {
                 response.append("HTTP/1.0 501 Not Implemented" + CRLF);
                 break;
         }
-        response.append("Server: Java HTTP Server 1.1"  + CRLF);
-        response.append("Date: ").append(new Date()).append(CRLF);
-        response.append("Content-Type: ").append(contentType).append(CRLF);
-        response.append("Connection: keep-alive");
-        response.append(CRLF);
+        if (address != null) {
+            response.append("Date: ").append(new Date()).append(CRLF);
+            response.append("Server: Java HTTP Server 1.1"  + CRLF);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            long lastModified = (new File(address).lastModified());
+            String dateLastModified = sdf.format(lastModified);
+            response.append("Last-Modified: ").append(dateLastModified).append(CRLF);
+            response.append("Content-Length :" ).append("").append(CRLF);
+            response.append("Connection: keep-alive").append(CRLF);
+            response.append("Content-Type: ").append(contentType).append(CRLF);
+            response.append(CRLF);
+        }
         return response.toString();
     }
 

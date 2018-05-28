@@ -1,3 +1,6 @@
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.StringTokenizer;
@@ -11,8 +14,8 @@ public class Client extends Util {
         //c.imageToStream("src/Fichier/yugioh.jpg");
 
         try {
-            //c.fileToStream("src/Fichier/TestServeur.txt");
             c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
+            //c.sendGetImage("GET src/Fichier/yugioh.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,6 +62,30 @@ public class Client extends Util {
         } finally {
             if (br != null) br.close();
         }
+    }
+
+    /**
+     * Permet au client d'envoyer au serveur une demande d'image et de
+     * le récupérer dans un fichier .jpg.
+     * @param request Requête à envoyer au serveur.
+     * @throws IOException
+     */
+    //TODO: La fermeture de input déconne.
+    public void sendGetImage(String request) throws IOException {
+        ImageInputStream input = null;
+        BufferedImage img;
+        try {
+            super.send(request);
+
+            input = ImageIO.createImageInputStream(in);
+            img = ImageIO.read(input);
+            ImageIO.write(img, "jpg", new File("src/Fichier/imagePourClient.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            // if (input != null) input.close();
+        }
+
     }
 
     //TODO: A implémenter.
