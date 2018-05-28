@@ -3,6 +3,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Client extends Util {
@@ -12,13 +13,17 @@ public class Client extends Util {
         c.connexion(ipServeur, portServeur);
 
         //c.imageToStream("src/Fichier/yugioh.jpg");
-
+/*
         try {
-            c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
-            //c.sendGetImage("GET src/Fichier/yugioh.jpg");
+            //c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
+            c.sendGetImage("GET src/Fichier/yugioh.jpg");
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+*/
+        c.boucleDeCommunication();
 
         c.fermerConnexion();
     }
@@ -85,7 +90,24 @@ public class Client extends Util {
         } finally {
             // if (input != null) input.close();
         }
+    }
 
+    private void boucleDeCommunication() {
+        while (connexionEstActive()) {
+            try {
+                //c.fileToStream("src/Fichier/TestServeur.txt");
+                Scanner sc = new Scanner(System.in);
+                System.out.println("Veuillez renseigner la nature de votre requete (GET/PUT)");
+                String typeRequete = sc.next();
+                System.out.println("Veuillez renseigner le nom du fichier");
+                String nomFichier = sc.next();
+
+                String requete = typeRequete + " src/fichier/" + nomFichier + " HTTP/1.1";
+                sendGet(requete);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     //TODO: A implémenter.
