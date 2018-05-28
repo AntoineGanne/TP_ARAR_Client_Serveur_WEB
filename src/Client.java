@@ -1,5 +1,7 @@
 import java.io.*;
+
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Client extends Util {
@@ -10,13 +12,13 @@ public class Client extends Util {
 
         //c.imageToStream("src/Fichier/yugioh.jpg");
 
-        try {
+       /* try {
             //c.fileToStream("src/Fichier/TestServeur.txt");
             c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
+        }*/
+       c.boucleDeCommunication();
         c.fermerConnexion();
     }
 
@@ -57,7 +59,25 @@ public class Client extends Util {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (br != null) br.close();
+//            if (br != null) br.close();
+        }
+    }
+
+    private void boucleDeCommunication(){
+        while(connexionEstActive()){
+            try {
+                //c.fileToStream("src/Fichier/TestServeur.txt");
+                Scanner sc=new Scanner(System.in);
+                System.out.println("Veuillez renseigner la nature de votre requete (GET/PUT)");
+                String typeRequete=sc.next();
+                System.out.println("Veuillez renseigner le nom du fichier");
+                String nomFichier=sc.next();
+
+                String requete=typeRequete+" src/fichier/"+nomFichier+" HTTP/1.1";
+                sendGet(requete);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -49,6 +49,14 @@ public class Util {
     }
 
     /**
+     *
+     * @return vrai si la connexion n'as pas encore été fermée
+     */
+    protected boolean connexionEstActive(){
+            return !connexion.isClosed();
+    }
+
+    /**
      * Permet d'envoyer un message à un autre utilisateur.
      * @param request Message à envoyer.
      */
@@ -145,6 +153,8 @@ public class Util {
             if (input != null) input.close();
         }
     }
+
+
 
 /*
     protected void envoyer(String data,String ip, int port){
