@@ -70,9 +70,9 @@ public class Serveur extends Util {
     //TODO: Boucler sur plusieurs requêtes.
     //TODO: Compléter le traîtement des requêtes (PUT / déconnexion) et leurs réponses.
     public void listen() throws IOException {
-        BufferedReader br = null;
+        //BufferedReader br = null;
         try {
-            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
+            //br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
             String request;
             StringTokenizer st;
 
@@ -105,7 +105,7 @@ public class Serveur extends Util {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (br != null) br.close();
+            //if (br != null) br.close();
         }
     }
 
@@ -117,11 +117,11 @@ public class Serveur extends Util {
      */
     public void fileFromServerToClient(String address) throws IOException {
         FileInputStream fis = null;
-        BufferedReader br = null;
+        //BufferedReader br = null;
         String response;
         try {
             fis = new FileInputStream(address);
-            br = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
+            //br = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
             response = getResponse(200, address);
             out.write(response.getBytes());
 
@@ -134,7 +134,7 @@ public class Serveur extends Util {
             response = getResponse(404, address);
             send(response);
         } finally {
-            if (br != null) br.close();
+            //if (br != null) br.close();
             if (fis != null) fis.close();
         }
     }
@@ -177,13 +177,18 @@ public class Serveur extends Util {
                 break;
         }
         if (address != null) {
+            // On récupère la date de dernière modification du fichier.
+            File file = new File(address);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            long lastModified = file.lastModified();
+            String dateLastModified = sdf.format(lastModified);
+            // On récupère la taille du fichier (en octets)
+            long size = file.length();
+
             response.append("Date: ").append(new Date()).append(CRLF);
             response.append("Server: Java HTTP Server 1.1"  + CRLF);
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            long lastModified = (new File(address).lastModified());
-            String dateLastModified = sdf.format(lastModified);
             response.append("Last-Modified: ").append(dateLastModified).append(CRLF);
-            response.append("Content-Length :" ).append("").append(CRLF);
+            response.append("Content-Length : ").append(size).append(CRLF);
             response.append("Connection: keep-alive").append(CRLF);
             response.append("Content-Type: ").append(contentType).append(CRLF);
             response.append(CRLF);
