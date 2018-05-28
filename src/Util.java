@@ -1,99 +1,41 @@
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
-import java.util.Iterator;
 
 public class Util {
-    /*
     Socket socketTCP;
     InetAddress ipRecep; //adresseIP de la derniere personne a avoir envoyé un dp
     int portRecep; //port de la derniere personne a avoir envoyé un dp
-    */
 
-    protected final static int portServeur = 80;
-    protected final static String ipServeur = "127.0.0.1";
-    protected Socket connexion;
-    protected InputStream in;
-    protected OutputStream out;
+    static int PORT_SERVER=1500;
 
-    final static String CRLF = "\r\n";
 
-    protected Util() {}
+    protected Util(){
 
-    /**
-     * Permet d'intiialiser les flux d'entrée et de sortie de l'utilisateur.
-     */
-    public void initialiserStreams(){
-        try {
-            in = connexion.getInputStream();
-            out = connexion.getOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    /**
-     * Permet de fermer la connexion avec un autre utilisateur.
-     */
-    protected void fermerConnexion(){
-        try {
-            in.close();
-            out.close();
-            connexion.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Permet d'envoyer un message à un autre utilisateur.
-     * @param request Message à envoyer.
-     */
-    public void send(String request) {
-        if (!request.endsWith(CRLF)) request += CRLF;
-        try {
-            out.write(request.getBytes());
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Permet d'envoyer un fichier texte à un autre utilisateur.
-     * @param address Adresse du fichier à envoyer (depuis le poste de l'émetteur)
-     * @throws IOException
-     */
-    public void fileToStream(String address) throws IOException {
-        FileInputStream fis = null;
+    public void fileToStream(String address, OutputStream out) throws IOException {
+        InputStream in = null;
         BufferedReader br = null;
         try {
-            fis = new FileInputStream(address);
-            br = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
+            in = new FileInputStream(address);
+            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
 
             int c;
             while ((c = br.read()) != -1) {
                 out.write(c);
             }
+            br.close();
             out.flush();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (br != null) br.close();
-            if (fis != null) fis.close();
+            if (in != null) in.close();
         }
+
     }
 
-    /**
-     * Permet de récupérer le fichier texte reçu dans le flux d'entrée du socket
-     * et de le stocker dans le poste de l'utilisateur.
-     * @param address Adresse vers laquelle stocker le fichier reçu.
-     * @throws IOException
-     */
-    public void streamToFile(String address) throws IOException {
+    public void streamToFile(InputStream in, String address) throws IOException {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(address);
@@ -107,42 +49,6 @@ public class Util {
             e.printStackTrace();
         } finally {
             if (fos != null) fos.close();
-        }
-    }
-
-    /**
-     * Permet d'envoyer une image à un autre utilisateur.
-     * L'image reçue par le destinataire sera forcément sous format .jpg.
-     * @param address Adresse de l'image à envoyer (depuis le poste de l'émetteur)
-     */
-    public void imageToStream(String address) {
-        BufferedImage img;
-        try {
-            img = ImageIO.read(new File(address));
-            ImageIO.write(img, "jpg", out);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Permet de récupérer l'image reçue dans le flux d'entrée du socket
-     * et de le stocker dans le poste de l'utilisateur.
-     * @param address Adresse vers laquelle stocker l'image reçue.
-     * @throws IOException
-     */
-    public void streamToImage(String address) throws IOException {
-        ImageInputStream input = null;
-        BufferedImage img;
-        try {
-            input = ImageIO.createImageInputStream(in);
-            img = ImageIO.read(input);
-            ImageIO.write(img, "jpg", new File(address));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (input != null) input.close();
         }
     }
 

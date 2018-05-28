@@ -1,67 +1,72 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.StringTokenizer;
 
 public class Client extends Util {
+    Socket connexionServ;
+    InputStream inC;
+    OutputStream outC;
 
-    public static void main(String[] args) {
-        Client c = new Client();
-        c.connexion(ipServeur, portServeur);
+    private static int portServeur=80;
 
-        //c.imageToStream("src/Fichier/yugioh.jpg");
+    private static String ipServeur="127.0.0.1";
 
-        try {
-            //c.fileToStream("src/Fichier/TestServeur.txt");
-            c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args){
+        Client c=new Client();
+        c.connexion();
+        c.initialiserStreams();
+
+        // c.envoyerServeur("bonjour  gentil serveur");
+        c.test();
 
         c.fermerConnexion();
     }
 
-    public Client(){ super(); }
 
-    /**
-     * Permet d'initialiser une connexion avec un serveur.
-     * @param ip Adresse IP de l'utilisateur avec lequel se connecter.
-     * @param port Port de l'utilisateur sur lequel on se connecte.
-     * @see #initialiserStreams()
-     */
-    public void connexion(String ip, int port) {
+    Client(){
+
+    }
+
+    public void test() {
         try {
-            System.out.println("Connexion avec le serveur " + ipServeur + " initialisée sur le port " + portServeur);
-            connexion = new Socket(ip, port);
-            initialiserStreams();
+            this.fileToStream("Test.txt",this.outC);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void connexion(){
+        try {
+            connexionServ =new Socket(ipServeur,portServeur);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void fermerConnexion(){
+        try {
+            connexionServ.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Permet au client d'envoyer au serveur une demande de fichier et de
-     * récupérer le contenu de celui-ci lorsque le serveur lui a répondu.
-     * @param request Requête à envoyer au serveur.
-     * @throws IOException
-     */
-    public void sendGet(String request) throws IOException {
-        BufferedReader br = null;
+    private void initialiserStreams(){
         try {
-            super.send(request);
-
-            br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
+            inC=connexionServ.getInputStream();
+            outC=connexionServ.getOutputStream();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (br != null) br.close();
         }
     }
 
-    //TODO: A implémenter.
-    public void sendPut(String request) {}
-
+    private void envoyerServeur(String requete){
+        try {
+            outC.write(requete.getBytes());
+            outC.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
