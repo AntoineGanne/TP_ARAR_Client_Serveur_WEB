@@ -62,6 +62,8 @@ public class Client extends Util {
     }
 
     //TODO: A implémenter.
-    public void sendPut(String request) {}
+    public void sendPut(String request) {
+
+    }
 
 }
