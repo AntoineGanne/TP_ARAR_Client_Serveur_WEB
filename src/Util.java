@@ -51,6 +51,14 @@ public class Util {
     }
 
     /**
+     *
+     * @return vrai si la connexion n'as pas encore été fermée
+     */
+    protected boolean connexionEstActive(){
+            return !connexion.isClosed();
+    }
+
+    /**
      * Permet d'envoyer un message à un autre utilisateur.
      * @param request Message à envoyer.
      */
@@ -147,5 +155,33 @@ public class Util {
             if (input != null) input.close();
         }
     }
+
+/*
+
+    protected void repondre(String data){
+        envoyer(data,ipRecep,portRecep);
+    }
+
+    public static List<Integer> scan(int dep,int fin){
+        ArrayList<Integer> res=new ArrayList<>();
+        DatagramSocket ds;
+        for(int i=dep;i<=fin;i++){
+            try {
+                ds=new DatagramSocket(i);
+                res.add(i);
+                ds.close();
+            } catch (SocketException e) {
+//                System.out.println(i);
+            }
+        }
+//        System.out.println("\n Fin des ports occupés. \n  ports libres:");
+        return res;
+    }
+
+    protected int getPortEcoute(){
+        return ds.getLocalPort();
+    }
+
+*/
 
 }

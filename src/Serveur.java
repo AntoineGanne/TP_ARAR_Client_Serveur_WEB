@@ -16,13 +16,14 @@ public class Serveur extends Util {
         s.connexion(portServeur);
 
         try {
-            s.listen();
+            //s.streamToFile("src/Fichier/TestClient.txt");
+            s.boucleDeCommunication();
             //s.streamToImage("src/Fichier/test.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // s.fermerConnexion();
+        s.fermerConnexion();
     }
 
     public Serveur() { super(); }
@@ -53,6 +54,7 @@ public class Serveur extends Util {
      */
     public void fermerConnexion() {
         try {
+            System.out.println("connexion fermée");
             socServ.close();
             super.fermerConnexion();
         } catch (IOException e) {
@@ -213,6 +215,16 @@ public class Serveur extends Util {
             contentType = "text/plain";
         }
         return contentType;
+    }
+
+    /**
+     * contient le while() qui permet de lire les requetes tant que la connexion est ouverte
+     */
+    protected void boucleDeCommunication() throws IOException {
+        while(connexionEstActive()){
+            System.out.println("en attente d'une requete");
+            listen();
+        }
     }
 
 }
