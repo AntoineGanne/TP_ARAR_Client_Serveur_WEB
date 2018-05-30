@@ -203,7 +203,7 @@ public class Serveur extends Util {
      */
     public String getContentType(String address) {
         String contentType;
-        if (address.endsWith(".html") || address.endsWith(".htm")) {
+        if (address.endsWith(".html") || address.endsWith(".html")) {
             contentType = "text/html";
         } else if (address.endsWith(".jpg") || address.endsWith(".jpeg")) {
             contentType = "image/jpeg";

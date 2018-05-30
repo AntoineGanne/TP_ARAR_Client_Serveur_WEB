@@ -102,7 +102,7 @@ public class Client extends Util {
                 System.out.println("Veuillez renseigner le nom du fichier");
                 String nomFichier = sc.next();
 
-                String requete = typeRequete + " src/fichier/" + nomFichier + " HTTP/1.1";
+                String requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
                 sendGet(requete);
             } catch (IOException e) {
                 e.printStackTrace();
