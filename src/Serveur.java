@@ -117,16 +117,16 @@ public class Serveur extends Util {
      */
     public void fileFromServerToClient(String address) throws IOException {
         FileInputStream fis = null;
-        //BufferedReader br = null;
+        BufferedReader brFis = null;
         String response;
         try {
             fis = new FileInputStream(address);
-            //br = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
+            brFis = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
             response = getResponse(200, address);
             out.write(response.getBytes());
 
             int c;
-            while ((c = br.read()) != -1) {
+            while ((c = brFis.read()) != -1) {
                 out.write(c);
             }
             out.flush();
@@ -134,7 +134,7 @@ public class Serveur extends Util {
             response = getResponse(404, address);
             send(response);
         } finally {
-            //if (br != null) br.close();
+            if (brFis != null) brFis.close();
             if (fis != null) fis.close();
         }
     }
@@ -191,7 +191,7 @@ public class Serveur extends Util {
             response.append("Content-Length : ").append(size).append(CRLF);
             response.append("Connection: keep-alive").append(CRLF);
             response.append("Content-Type: ").append(contentType).append(CRLF);
-            response.append(CRLF);
+            response.append("" + CRLF);
         }
         return response.toString();
     }
