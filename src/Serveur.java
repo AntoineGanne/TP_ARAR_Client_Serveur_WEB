@@ -129,6 +129,7 @@ public class Serveur extends Util {
             while ((c = brFis.read()) != -1) {
                 out.write(c);
             }
+            out.write('\u001a');  //on écrit le caractère EOF
             out.flush();
         } catch (FileNotFoundException e) {
             response = getResponse(404, address);
