@@ -65,6 +65,7 @@ public class Client extends Util {
                 System.out.print((char)car );
                 car=br.read();
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
