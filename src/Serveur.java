@@ -86,7 +86,7 @@ public class Serveur extends Util {
                 // On récupère la méthode souhaitée (premier mot).
                 String method = st.nextToken();
                 // Si la méthode est reconnue, on traîte la requête.
-                if (method.equals("GET") || method.equals("PUT")) {
+                if (method.equals("GET") || method.equals("PUT")|| method.equals("CLOSE")) {
                     if (method.equals("GET")) {
                         // On récupère le second mot de la requête : l'URI.
                         String address = st.nextToken();
@@ -94,6 +94,8 @@ public class Serveur extends Util {
                         if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png")) ) imageFromServerToClient(address);
                     } else if (method.equals("PUT")) {
                         System.out.println("A faire...");
+                    }else if(method.equals("CLOSE")){
+                        fermerConnexion();
                     }
                 }
                 /* Si la requête ne commence pas par une méthode reconnue on renvoie au client
