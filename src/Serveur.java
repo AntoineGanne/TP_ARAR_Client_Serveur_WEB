@@ -188,7 +188,7 @@ public class Serveur extends Util {
             response.append("Date: ").append(new Date()).append(CRLF);
             response.append("Server: Java HTTP Server 1.1"  + CRLF);
             response.append("Last-Modified: ").append(dateLastModified).append(CRLF);
-            response.append("Content-Length : ").append(size).append(CRLF);
+            response.append("Content-Length: ").append(size).append(CRLF);
             response.append("Connection: keep-alive").append(CRLF);
             response.append("Content-Type: ").append(contentType).append(CRLF);
             response.append(CRLF);

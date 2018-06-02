@@ -57,6 +57,7 @@ public class Client extends Util {
             while ((line = br.readLine()) != null) {
                 System.out.println(line);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
