@@ -3,6 +3,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Client extends Util {
@@ -12,13 +13,17 @@ public class Client extends Util {
         c.connexion(ipServeur, portServeur);
 
         //c.imageToStream("src/Fichier/yugioh.jpg");
-
+/*
         try {
-            c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
-            //c.sendGetImage("GET src/Fichier/yugioh.jpg");
+            //c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
+            c.sendGetImage("GET src/Fichier/yugioh.jpg");
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+*/
+        c.boucleDeCommunication();
 
         c.fermerConnexion();
     }
@@ -54,8 +59,10 @@ public class Client extends Util {
 
             //br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
             String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
+            int car=br.read();
+            while (car != -1 && (char)car!='\u001a') {
+                System.out.print((char)car );
+                car=br.read();
             }
 
         } catch (IOException e) {
@@ -63,6 +70,7 @@ public class Client extends Util {
         } finally {
             //if (br != null) br.close();
         }
+        System.out.println("////////// fin du fichier //////////");
     }
 
     /**
@@ -86,7 +94,24 @@ public class Client extends Util {
         } finally {
             // if (input != null) input.close();
         }
+    }
 
+    private void boucleDeCommunication() {
+        while (connexionEstActive()) {
+            try {
+                //c.fileToStream("src/Fichier/TestServeur.txt");
+                Scanner sc = new Scanner(System.in);
+                System.out.println("Veuillez renseigner la nature de votre requete (GET/PUT)");
+                String typeRequete = sc.next();
+                System.out.println("Veuillez renseigner le nom du fichier");
+                String nomFichier = sc.next();
+
+                String requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
+                sendGet(requete);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     //TODO: A implémenter.

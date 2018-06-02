@@ -42,9 +42,9 @@ public class Util {
      */
     protected void fermerConnexion(){
         try {
+            connexion.close();
             in.close();
             out.close();
-            connexion.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
