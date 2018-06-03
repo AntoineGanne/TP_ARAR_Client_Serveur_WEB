@@ -93,7 +93,10 @@ public class Serveur extends Util {
                         if (address.endsWith("html") || (address.endsWith(".txt"))) fileFromServerToClient(address);
                         if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png")) ) imageFromServerToClient(address);
                     } else if (method.equals("PUT")) {
-                        System.out.println("A faire...");
+                        //System.out.println("A faire...");
+                        String adresseFichier="src/Fichier/Serveur/"+st.nextToken();
+//                        System.out.println("adresseFichier: "+adresseFichier);
+                        traitementPUT(adresseFichier,request);
                     }else if(method.equals("CLOSE")){
                         fermerConnexion();
                     }
@@ -108,6 +111,25 @@ public class Serveur extends Util {
             e.printStackTrace();
         } finally {
             //if (br != null) br.close();
+        }
+    }
+
+    private void traitementPUT(String adresseFichier, String request) {
+//        System.out.println("requete: "+request);
+        try {
+            File fichierCree=new File(adresseFichier);
+            BufferedWriter bwFichierCree=new BufferedWriter(new FileWriter(fichierCree));
+            int car = br.read();
+            while (car != -1 && (char)car!='\u001a') {
+                System.out.print((char)car );
+                bwFichierCree.write(car);
+                car=br.read();
+            }
+
+            bwFichierCree.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

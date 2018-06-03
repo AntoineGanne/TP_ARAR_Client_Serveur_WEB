@@ -97,6 +97,43 @@ public class Client extends Util {
         }
     }
 
+    //TODO: A implémenter.
+    public void sendPut(String adresseFichierLocal, String nomFichier) throws IOException {
+        String requete="PUT "+  nomFichier+CRLF;
+        super.send(requete);
+
+        FileInputStream fis = null;
+        BufferedReader brFis = null;
+        String response;
+        try {
+            fis = new FileInputStream(adresseFichierLocal);
+            brFis = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
+//            response = getResponse(200, adresseFichierLocal);
+//            out.write(response.getBytes());
+
+            int c;
+            while ((c = brFis.read()) != -1) {
+                out.write(c);
+            }
+            out.write('\u001a');  //on écrit le caractère EOF
+            out.flush();
+        } catch (FileNotFoundException e) {
+//            response = getResponse(404, address);
+//            send(response);
+            System.out.println("fichier introuvable");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (brFis != null) brFis.close();
+            if (fis != null) fis.close();
+        }
+        System.out.println("requète PUT envoyée");
+
+    }
+
+
     private void boucleDeCommunication() {
         while (connexionEstActive()) {
             try {
@@ -105,16 +142,21 @@ public class Client extends Util {
                 System.out.println("Veuillez renseigner la nature de votre requete (GET/PUT/CLOSE)");
                 String typeRequete = sc.next().toUpperCase();  //le toUpperCase permet au client de pouvoir ecrire le type en minuscule
 
+                String nomFichier,requete;
                 switch (typeRequete){
                     case "GET":
                         System.out.println("Veuillez renseigner le nom du fichier");
-                        String nomFichier = sc.next();
+                         nomFichier = sc.next();
 
-                        String requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
+                         requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
                         sendGet(requete);
                         break;
                     case "PUT":
-                        System.out.println("requete pas encore implementée");
+                        System.out.println("Veuillez renseigner le nom du fichier a transferer");
+                         nomFichier = sc.next();
+
+                         String adresseLocale ="src/Fichier/Client/" + nomFichier;
+                        sendPut(adresseLocale,nomFichier);
                         break;
                     case "CLOSE":
                         super.send(typeRequete);
@@ -132,9 +174,5 @@ public class Client extends Util {
         }
     }
 
-    //TODO: A implémenter.
-    public void sendPut(String request) {
-
-    }
 
 }
