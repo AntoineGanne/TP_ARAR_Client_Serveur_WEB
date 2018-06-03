@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+
 public class Client extends Util {
 
     public static void main(String[] args) {
@@ -70,7 +71,7 @@ public class Client extends Util {
         } finally {
             //if (br != null) br.close();
         }
-        System.out.println("////////// fin du fichier //////////");
+        System.out.println("\n ////////// fin du fichier ////////// \n");
     }
 
     /**
@@ -101,13 +102,30 @@ public class Client extends Util {
             try {
                 //c.fileToStream("src/Fichier/TestServeur.txt");
                 Scanner sc = new Scanner(System.in);
-                System.out.println("Veuillez renseigner la nature de votre requete (GET/PUT)");
-                String typeRequete = sc.next();
-                System.out.println("Veuillez renseigner le nom du fichier");
-                String nomFichier = sc.next();
+                System.out.println("Veuillez renseigner la nature de votre requete (GET/PUT/CLOSE)");
+                String typeRequete = sc.next().toUpperCase();  //le toUpperCase permet au client de pouvoir ecrire le type en minuscule
 
-                String requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
-                sendGet(requete);
+                switch (typeRequete){
+                    case "GET":
+                        System.out.println("Veuillez renseigner le nom du fichier");
+                        String nomFichier = sc.next();
+
+                        String requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
+                        sendGet(requete);
+                        break;
+                    case "PUT":
+                        System.out.println("requete pas encore implementée");
+                        break;
+                    case "CLOSE":
+                        super.send(typeRequete);
+                        super.fermerConnexion();
+                        break;
+                    default:
+                        System.out.println("type de requète non reconnue");
+                        break;
+                }
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
