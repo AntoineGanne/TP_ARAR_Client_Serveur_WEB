@@ -88,7 +88,7 @@ public class Client extends Util {
         }
     }
 
-    //TODO: A implémenter.
+
     public void sendPut(String adresseFichierLocal, String nomFichier) throws IOException {
         String requete="PUT "+  nomFichier+CRLF;
         super.send(requete);
@@ -137,7 +137,7 @@ public class Client extends Util {
                     case "GET":
                         System.out.println("Veuillez renseigner le nom du fichier");
                         nomFichier = sc.next();
-                        requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
+                        requete = typeRequete + " src/Fichier/Serveur" + nomFichier + " HTTP/1.1";
                         if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
                         // if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete);
                         break;
@@ -145,6 +145,7 @@ public class Client extends Util {
                         System.out.println("Veuillez renseigner le nom du fichier a transferer");
                          nomFichier = sc.next();
                          String adresseLocale ="src/Fichier/Client/" + nomFichier;
+                         sendPut(adresseLocale,nomFichier);
                         break;
                     case "CLOSE":
                         super.send(typeRequete);

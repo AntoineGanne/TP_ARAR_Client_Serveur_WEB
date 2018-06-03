@@ -115,6 +115,7 @@ public class Serveur extends Util {
         try {
             File fichierCree=new File(adresseFichier);
             BufferedWriter bwFichierCree=new BufferedWriter(new FileWriter(fichierCree));
+            System.out.println("création du fichier "+adresseFichier);
             int car = br.read();
             while (car != -1 && (char)car!='\u001a') {
                 System.out.print((char)car );
