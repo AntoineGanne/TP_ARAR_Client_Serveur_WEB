@@ -13,17 +13,14 @@ public class Client extends Util {
         Client c = new Client();
         c.connexion(ipServeur, portServeur);
 
-        //c.imageToStream("src/Fichier/yugioh.jpg");
-/*
+        /*
         try {
-            //c.sendGet("GET src/Fichier/TestServeur.txt HTTP/1.1");
             c.sendGetImage("GET src/Fichier/yugioh.jpg");
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-*/
+        */
+
         c.boucleDeCommunication();
 
         c.fermerConnexion();
@@ -54,24 +51,18 @@ public class Client extends Util {
      * @throws IOException
      */
     public void sendGet(String request) throws IOException {
-        //BufferedReader br = null;
         try {
             super.send(request);
 
-            //br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
-            String line;
             int car = br.read();
-            while (car != -1 && (char)car!='\u001a') {
-                System.out.print((char)car );
-                car=br.read();
+            while (car != -1 && (char)car != '\u001a') {
+                System.out.print((char)car);
+                car = br.read();
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            //if (br != null) br.close();
         }
-        System.out.println("\n ////////// fin du fichier ////////// \n");
     }
 
     /**
@@ -100,10 +91,9 @@ public class Client extends Util {
     private void boucleDeCommunication() {
         while (connexionEstActive()) {
             try {
-                //c.fileToStream("src/Fichier/TestServeur.txt");
                 Scanner sc = new Scanner(System.in);
-                System.out.println("Veuillez renseigner la nature de votre requete (GET/PUT/CLOSE)");
-                String typeRequete = sc.next().toUpperCase();  //le toUpperCase permet au client de pouvoir ecrire le type en minuscule
+                System.out.println("Veuillez renseigner la nature de votre requete (GET / PUT / CLOSE)");
+                String typeRequete = sc.next().toUpperCase();  // Permet au client de pouvoir écrire le type en minuscule.
 
                 switch (typeRequete){
                     case "GET":
@@ -111,21 +101,20 @@ public class Client extends Util {
                         String nomFichier = sc.next();
 
                         String requete = typeRequete + " src/Fichier/" + nomFichier + " HTTP/1.1";
-                        sendGet(requete);
+                        if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
+                        // if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete);
                         break;
                     case "PUT":
-                        System.out.println("requete pas encore implementée");
+                        System.out.println("Requête pas encore implémentée");
                         break;
                     case "CLOSE":
                         super.send(typeRequete);
                         super.fermerConnexion();
                         break;
                     default:
-                        System.out.println("type de requète non reconnue");
+                        System.out.println("Type de requête non reconnue...");
                         break;
                 }
-
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

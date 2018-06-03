@@ -16,9 +16,8 @@ public class Serveur extends Util {
         s.connexion(portServeur);
 
         try {
-            //s.streamToFile("src/Fichier/TestClient.txt");
+            //s.listen();
             s.boucleDeCommunication();
-            //s.streamToImage("src/Fichier/test.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,9 +69,7 @@ public class Serveur extends Util {
     //TODO: Boucler sur plusieurs requêtes.
     //TODO: Compléter le traîtement des requêtes (PUT / déconnexion) et leurs réponses.
     public void listen() throws IOException {
-        //BufferedReader br = null;
         try {
-            //br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
             String request;
             StringTokenizer st;
 
@@ -87,15 +84,19 @@ public class Serveur extends Util {
                 String method = st.nextToken();
                 // Si la méthode est reconnue, on traîte la requête.
                 if (method.equals("GET") || method.equals("PUT")|| method.equals("CLOSE")) {
-                    if (method.equals("GET")) {
-                        // On récupère le second mot de la requête : l'URI.
-                        String address = st.nextToken();
-                        if (address.endsWith("html") || (address.endsWith(".txt"))) fileFromServerToClient(address);
-                        if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png")) ) imageFromServerToClient(address);
-                    } else if (method.equals("PUT")) {
-                        System.out.println("A faire...");
-                    }else if(method.equals("CLOSE")){
-                        fermerConnexion();
+                    switch (method) {
+                        case "GET":
+                            // On récupère le second mot de la requête : l'URI.
+                            String address = st.nextToken();
+                            if (address.endsWith("html") || (address.endsWith(".txt"))) fileFromServerToClient(address);
+                            if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png"))) imageFromServerToClient(address);
+                            break;
+                        case "PUT":
+                            System.out.println("A faire...");
+                            break;
+                        case "CLOSE":
+                            fermerConnexion();
+                            break;
                     }
                 }
                 /* Si la requête ne commence pas par une méthode reconnue on renvoie au client
@@ -106,8 +107,6 @@ public class Serveur extends Util {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            //if (br != null) br.close();
         }
     }
 
@@ -131,7 +130,7 @@ public class Serveur extends Util {
             while ((c = brFis.read()) != -1) {
                 out.write(c);
             }
-            out.write('\u001a');  //on écrit le caractère EOF
+            out.write('\u001a');  // On écrit le caractère EOF
             out.flush();
         } catch (FileNotFoundException e) {
             response = getResponse(404, address);
@@ -144,7 +143,7 @@ public class Serveur extends Util {
 
     public void imageFromServerToClient(String address) {
         BufferedImage img;
-        String response;
+        //String response;
         try {
             img = ImageIO.read(new File(address));
             //response = getResponse(200, address);
@@ -221,11 +220,11 @@ public class Serveur extends Util {
     }
 
     /**
-     * contient le while() qui permet de lire les requetes tant que la connexion est ouverte
+     * Contient le while() qui permet de lire les requêtes tant que la connexion est ouverte.
      */
     protected void boucleDeCommunication() throws IOException {
         while(connexionEstActive()){
-            System.out.println("En attente d'une requete...");
+            System.out.println("\n En attente d'une requete...");
             listen();
         }
     }
