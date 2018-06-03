@@ -16,6 +16,7 @@ public class Util {
     protected BufferedReader br;
 
     final static String CRLF = "\r\n";
+    final static char EOF = '\u001a';
 
     protected Util() {}
 

@@ -102,7 +102,7 @@ public class Serveur extends Util {
                 /* Si la requête ne commence pas par une méthode reconnue on renvoie au client
                 l'erreur 501. */
                 else {
-                    send(getResponse(501, null));
+                    send(getResponse(501, null) + EOF);
                 }
             }
         } catch (IOException e) {
@@ -130,11 +130,11 @@ public class Serveur extends Util {
             while ((c = brFis.read()) != -1) {
                 out.write(c);
             }
-            out.write('\u001a');  // On écrit le caractère EOF
+            out.write(EOF);
             out.flush();
         } catch (FileNotFoundException e) {
             response = getResponse(404, address);
-            send(response);
+            send(response + EOF);
         } finally {
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
@@ -189,12 +189,13 @@ public class Serveur extends Util {
 
             response.append("Date: ").append(new Date()).append(CRLF);
             response.append("Server: Java HTTP Server 1.1"  + CRLF);
-            response.append("Last-Modified: ").append(dateLastModified).append(CRLF);
-            response.append("Content-Length: ").append(size).append(CRLF);
+            if (code != 404) response.append("Last-Modified: ").append(dateLastModified).append(CRLF);
+            if (code != 404) response.append("Content-Length: ").append(size).append(CRLF);
             response.append("Connection: keep-alive").append(CRLF);
             response.append("Content-Type: ").append(contentType).append(CRLF);
             response.append("" + CRLF);
         }
+
         return response.toString();
     }
 
