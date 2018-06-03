@@ -16,9 +16,8 @@ public class Serveur extends Util {
         s.connexion(portServeur);
 
         try {
-            //s.streamToFile("src/Fichier/TestClient.txt");
+            //s.listen();
             s.boucleDeCommunication();
-            //s.streamToImage("src/Fichier/test.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,9 +69,7 @@ public class Serveur extends Util {
     //TODO: Boucler sur plusieurs requêtes.
     //TODO: Compléter le traîtement des requêtes (PUT / déconnexion) et leurs réponses.
     public void listen() throws IOException {
-        //BufferedReader br = null;
         try {
-            //br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
             String request;
             StringTokenizer st;
 
@@ -99,18 +96,17 @@ public class Serveur extends Util {
                         traitementPUT(adresseFichier,request);
                     }else if(method.equals("CLOSE")){
                         fermerConnexion();
+
                     }
                 }
                 /* Si la requête ne commence pas par une méthode reconnue on renvoie au client
                 l'erreur 501. */
                 else {
-                    send(getResponse(501, null));
+                    send(getResponse(501, null) + EOF);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            //if (br != null) br.close();
         }
     }
 
@@ -153,11 +149,11 @@ public class Serveur extends Util {
             while ((c = brFis.read()) != -1) {
                 out.write(c);
             }
-            out.write('\u001a');  //on écrit le caractère EOF
+            out.write(EOF);
             out.flush();
         } catch (FileNotFoundException e) {
             response = getResponse(404, address);
-            send(response);
+            send(response + EOF);
         } finally {
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
@@ -166,7 +162,7 @@ public class Serveur extends Util {
 
     public void imageFromServerToClient(String address) {
         BufferedImage img;
-        String response;
+        //String response;
         try {
             img = ImageIO.read(new File(address));
             //response = getResponse(200, address);
@@ -212,12 +208,13 @@ public class Serveur extends Util {
 
             response.append("Date: ").append(new Date()).append(CRLF);
             response.append("Server: Java HTTP Server 1.1"  + CRLF);
-            response.append("Last-Modified: ").append(dateLastModified).append(CRLF);
-            response.append("Content-Length: ").append(size).append(CRLF);
+            if (code != 404) response.append("Last-Modified: ").append(dateLastModified).append(CRLF);
+            if (code != 404) response.append("Content-Length: ").append(size).append(CRLF);
             response.append("Connection: keep-alive").append(CRLF);
             response.append("Content-Type: ").append(contentType).append(CRLF);
             response.append("" + CRLF);
         }
+
         return response.toString();
     }
 
@@ -243,11 +240,11 @@ public class Serveur extends Util {
     }
 
     /**
-     * contient le while() qui permet de lire les requetes tant que la connexion est ouverte
+     * Contient le while() qui permet de lire les requêtes tant que la connexion est ouverte.
      */
     protected void boucleDeCommunication() throws IOException {
         while(connexionEstActive()){
-            System.out.println("En attente d'une requete...");
+            System.out.println("\n En attente d'une requete...");
             listen();
         }
     }

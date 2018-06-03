@@ -7,11 +7,6 @@ import java.net.*;
 import java.util.Iterator;
 
 public class Util {
-    /*
-    Socket socketTCP;
-    InetAddress ipRecep; //adresseIP de la derniere personne a avoir envoyé un dp
-    int portRecep; //port de la derniere personne a avoir envoyé un dp
-    */
 
     protected final static int portServeur = 80;
     protected final static String ipServeur = "127.0.0.1";
@@ -21,6 +16,7 @@ public class Util {
     protected BufferedReader br;
 
     final static String CRLF = "\r\n";
+    final static char EOF = '\u001a';
 
     protected Util() {}
 
@@ -52,10 +48,10 @@ public class Util {
 
     /**
      *
-     * @return vrai si la connexion n'as pas encore été fermée
+     * @return Vrai si la connexion n'a pas encore été fermée.
      */
     protected boolean connexionEstActive(){
-            return !connexion.isClosed();
+        return !connexion.isClosed();
     }
 
     /**
@@ -156,34 +152,5 @@ public class Util {
         }
     }
 
-
-
-/*
-
-    protected void repondre(String data){
-        envoyer(data,ipRecep,portRecep);
-    }
-
-    public static List<Integer> scan(int dep,int fin){
-        ArrayList<Integer> res=new ArrayList<>();
-        DatagramSocket ds;
-        for(int i=dep;i<=fin;i++){
-            try {
-                ds=new DatagramSocket(i);
-                res.add(i);
-                ds.close();
-            } catch (SocketException e) {
-//                System.out.println(i);
-            }
-        }
-//        System.out.println("\n Fin des ports occupés. \n  ports libres:");
-        return res;
-    }
-
-    protected int getPortEcoute(){
-        return ds.getLocalPort();
-    }
-
-*/
 
 }
