@@ -59,7 +59,7 @@ public class Client extends Util {
 
             //br = new BufferedReader(new InputStreamReader(in, "UTF-8"), 2048);
             String line;
-            int car=br.read();
+            int car = br.read();
             while (car != -1 && (char)car!='\u001a') {
                 System.out.print((char)car );
                 car=br.read();

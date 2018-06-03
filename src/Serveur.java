@@ -54,7 +54,7 @@ public class Serveur extends Util {
      */
     public void fermerConnexion() {
         try {
-            System.out.println("connexion fermée");
+            System.out.println("Connexion fermée.");
             socServ.close();
             super.fermerConnexion();
         } catch (IOException e) {
@@ -223,7 +223,7 @@ public class Serveur extends Util {
      */
     protected void boucleDeCommunication() throws IOException {
         while(connexionEstActive()){
-            System.out.println("en attente d'une requete");
+            System.out.println("En attente d'une requete...");
             listen();
         }
     }
