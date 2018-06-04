@@ -22,7 +22,6 @@ public class Serveur extends Util {
             e.printStackTrace();
         }
 
-        s.fermerConnexion();
     }
 
     public Serveur() { super(); }
@@ -51,7 +50,7 @@ public class Serveur extends Util {
     /**
      * Ferme la connexion avec le client.
      */
-    public void fermerConnexion() {
+    public void fermerConnexionServeur() {
         try {
             System.out.println("Connexion fermée.");
             socServ.close();
@@ -95,7 +94,7 @@ public class Serveur extends Util {
 //                        System.out.println("adresseFichier: "+adresseFichier);
                         traitementPUT(adresseFichier,request);
                     }else if(method.equals("CLOSE")){
-                        fermerConnexion();
+                        fermerConnexionServeur();
 
                     }
                 }
