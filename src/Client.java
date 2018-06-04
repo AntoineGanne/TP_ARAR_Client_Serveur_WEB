@@ -111,6 +111,12 @@ public class Client extends Util {
             }
             out.write('\u001a');  //on écrit le caractère EOF
             out.flush();
+
+            int car = br.read();
+            while (car != -1 && (char)car != '\u001a') {
+                System.out.print((char)car);
+                car = br.read();
+            }
         } catch (FileNotFoundException e) {
 //            response = getResponse(404, address);
 //            send(response);
@@ -123,7 +129,7 @@ public class Client extends Util {
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
         }
-        System.out.println("requète PUT envoyée");
+        //System.out.println("requète PUT envoyée");
 
     }
 

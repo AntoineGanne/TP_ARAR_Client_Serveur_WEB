@@ -123,6 +123,7 @@ public class Serveur extends Util {
             }
 
             bwFichierCree.close();
+            send(getResponse(200,adresseFichier) + EOF);
 
         } catch (IOException e) {
             e.printStackTrace();
