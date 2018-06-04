@@ -59,6 +59,7 @@ public class Client extends Util {
                 System.out.print((char)car);
                 car = br.read();
             }
+            System.out.println("\n");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -139,7 +140,7 @@ public class Client extends Util {
                     case "GET":
                         System.out.println("Veuillez renseigner le nom du fichier");
                         nomFichier = sc.next();
-                        requete = typeRequete + " src/Fichier/Serveur" + nomFichier + " HTTP/1.1";
+                        requete = typeRequete + " src/Fichier/Serveur/" + nomFichier + " HTTP/1.1";
                         if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
                         if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete);
                         break;
