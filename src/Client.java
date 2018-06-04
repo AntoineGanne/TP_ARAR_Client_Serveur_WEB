@@ -79,7 +79,9 @@ public class Client extends Util {
             super.send(request);
 
             input = ImageIO.createImageInputStream(in);
+
             img = ImageIO.read(input);
+            System.out.println("prout");
             ImageIO.write(img, "jpg", new File("src/Fichier/imagePourClient.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -139,7 +141,7 @@ public class Client extends Util {
                         nomFichier = sc.next();
                         requete = typeRequete + " src/Fichier/Serveur" + nomFichier + " HTTP/1.1";
                         if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
-                        // if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete);
+                        if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete);
                         break;
                     case "PUT":
                         System.out.println("Veuillez renseigner le nom du fichier a transferer");
