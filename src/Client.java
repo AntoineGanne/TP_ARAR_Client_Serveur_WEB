@@ -55,7 +55,7 @@ public class Client extends Util {
             super.send(request);
 
             int car = br.read();
-            while (car != -1 && (char)car != '\u001a') {
+            while (car != -1 && (char)car != EOF) {
                 System.out.print((char)car);
                 car = br.read();
             }
@@ -70,20 +70,33 @@ public class Client extends Util {
      * Permet au client d'envoyer au serveur une demande d'image et de
      * le récupérer dans un fichier .jpg.
      * @param request Requête à envoyer au serveur.
+     * @param nomFichier
      * @throws IOException
      */
     //TODO: La fermeture de input déconne.
-    public void sendGetImage(String request) throws IOException {
+    public void sendGetImage(String request, String nomFichier) throws IOException {
         ImageInputStream input = null;
         BufferedImage img;
+        String adresseFichier="src/Fichier/Client/"+nomFichier;
         try {
             super.send(request);
 
-            input = ImageIO.createImageInputStream(in);
+            File fichierCree=new File(adresseFichier);
+            BufferedWriter bwFichierCree=new BufferedWriter(new FileWriter(fichierCree));
+            System.out.println("création du fichier "+adresseFichier);
 
-            img = ImageIO.read(input);
-            System.out.println("prout");
-            ImageIO.write(img, "jpg", new File("src/Fichier/imagePourClient.jpg"));
+//            input = ImageIO.createImageInputStream(in);
+//            img = ImageIO.read(input);
+
+            int car = br.read();
+            while (car != -1 && (char)car!=EOF) {
+//                System.out.print((char)car );
+                bwFichierCree.write(car);
+                car=br.read();
+            }
+            bwFichierCree.close();
+            System.out.println("l'image en provenace du serveur a été enregistrée");
+//            ImageIO.write(img, "jpg", new File("src/Fichier/imagePourClient.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -148,7 +161,7 @@ public class Client extends Util {
                         nomFichier = sc.next();
                         requete = typeRequete + " src/Fichier/Serveur/" + nomFichier + " HTTP/1.1";
                         if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
-                        if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete);
+                        if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete,nomFichier);
                         break;
                     case "PUT":
                         System.out.println("Veuillez renseigner le nom du fichier a transferer");

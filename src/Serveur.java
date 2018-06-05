@@ -92,7 +92,7 @@ public class Serveur extends Util {
                         //System.out.println("A faire...");
                         String adresseFichier="src/Fichier/Serveur/"+st.nextToken();
 //                        System.out.println("adresseFichier: "+adresseFichier);
-                        traitementPUT(adresseFichier,request);
+                        traitementPUT(adresseFichier);
                     }else if(method.equals("CLOSE")){
                         fermerConnexionServeur();
 
@@ -109,7 +109,7 @@ public class Serveur extends Util {
         }
     }
 
-    private void traitementPUT(String adresseFichier, String request) {
+    private void traitementPUT(String adresseFichier) {
 //        System.out.println("requete: "+request);
         try {
             File fichierCree=new File(adresseFichier);
@@ -155,6 +155,8 @@ public class Serveur extends Util {
         } catch (FileNotFoundException e) {
             response = getResponse(404, address);
             send(response + EOF);
+            System.out.println("Un client a demandé un fichier qui ne se trouve pas sur ce serveur \n"
+                    +"fichier demandé: "+address);
         } finally {
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
