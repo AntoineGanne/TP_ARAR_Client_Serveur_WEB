@@ -1,3 +1,5 @@
+package TP_TCP;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;

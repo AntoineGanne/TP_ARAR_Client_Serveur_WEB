@@ -1,10 +1,10 @@
-import javax.imageio.ImageIO;
+package TP_TCP;
+
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.StringTokenizer;
 
 
 public class Client extends Util {
@@ -77,7 +77,7 @@ public class Client extends Util {
     public void sendGetImage(String request, String nomFichier) throws IOException {
         ImageInputStream input = null;
         BufferedImage img;
-        String adresseFichier="src/Fichier/Client/"+nomFichier;
+        String adresseFichier="src/Fichier/TP_TCP.Client/"+nomFichier;
         try {
             super.send(request);
 
@@ -159,14 +159,14 @@ public class Client extends Util {
                     case "GET":
                         System.out.println("Veuillez renseigner le nom du fichier");
                         nomFichier = sc.next();
-                        requete = typeRequete + " src/Fichier/Serveur/" + nomFichier + " HTTP/1.1";
+                        requete = typeRequete + " src/Fichier/TP_TCP.Serveur/" + nomFichier + " HTTP/1.1";
                         if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
                         if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete,nomFichier);
                         break;
                     case "PUT":
                         System.out.println("Veuillez renseigner le nom du fichier a transferer");
                          nomFichier = sc.next();
-                         String adresseLocale ="src/Fichier/Client/" + nomFichier;
+                         String adresseLocale ="src/Fichier/TP_TCP.Client/" + nomFichier;
                          sendPut(adresseLocale,nomFichier);
                         break;
                     case "CLOSE":

@@ -1,3 +1,5 @@
+package TP_TCP;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -90,7 +92,7 @@ public class Serveur extends Util {
                         if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png")) ) imageFromServerToClient(address);
                     } else if (method.equals("PUT")) {
                         //System.out.println("A faire...");
-                        String adresseFichier="src/Fichier/Serveur/"+st.nextToken();
+                        String adresseFichier="src/Fichier/TP_TCP.Serveur/"+st.nextToken();
 //                        System.out.println("adresseFichier: "+adresseFichier);
                         traitementPUT(adresseFichier);
                     }else if(method.equals("CLOSE")){
