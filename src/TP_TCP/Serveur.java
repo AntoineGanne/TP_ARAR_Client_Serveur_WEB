@@ -1,3 +1,5 @@
+package TP_TCP;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -22,7 +24,6 @@ public class Serveur extends Util {
             e.printStackTrace();
         }
 
-        s.fermerConnexion();
     }
 
     public Serveur() { super(); }
@@ -51,7 +52,7 @@ public class Serveur extends Util {
     /**
      * Ferme la connexion avec le client.
      */
-    public void fermerConnexion() {
+    public void fermerConnexionServeur() {
         try {
             System.out.println("Connexion fermée.");
             socServ.close();
@@ -91,11 +92,11 @@ public class Serveur extends Util {
                         if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png")) ) imageFromServerToClient(address);
                     } else if (method.equals("PUT")) {
                         //System.out.println("A faire...");
-                        String adresseFichier="src/Fichier/Serveur/"+st.nextToken();
+                        String adresseFichier="src/Fichier/TP_TCP.Serveur/"+st.nextToken();
 //                        System.out.println("adresseFichier: "+adresseFichier);
-                        traitementPUT(adresseFichier,request);
+                        traitementPUT(adresseFichier);
                     }else if(method.equals("CLOSE")){
-                        fermerConnexion();
+                        fermerConnexionServeur();
 
                     }
                 }
@@ -110,7 +111,7 @@ public class Serveur extends Util {
         }
     }
 
-    private void traitementPUT(String adresseFichier, String request) {
+    private void traitementPUT(String adresseFichier) {
 //        System.out.println("requete: "+request);
         try {
             File fichierCree=new File(adresseFichier);
@@ -124,6 +125,7 @@ public class Serveur extends Util {
             }
 
             bwFichierCree.close();
+            send(getResponse(200,adresseFichier) + EOF);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -155,6 +157,8 @@ public class Serveur extends Util {
         } catch (FileNotFoundException e) {
             response = getResponse(404, address);
             send(response + EOF);
+            System.out.println("Un client a demandé un fichier qui ne se trouve pas sur ce serveur \n"
+                    +"fichier demandé: "+address);
         } finally {
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();

@@ -1,10 +1,10 @@
-import javax.imageio.ImageIO;
+package TP_TCP;
+
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.StringTokenizer;
 
 
 public class Client extends Util {
@@ -55,10 +55,11 @@ public class Client extends Util {
             super.send(request);
 
             int car = br.read();
-            while (car != -1 && (char)car != '\u001a') {
+            while (car != -1 && (char)car != EOF) {
                 System.out.print((char)car);
                 car = br.read();
             }
+            System.out.println("\n");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -69,18 +70,33 @@ public class Client extends Util {
      * Permet au client d'envoyer au serveur une demande d'image et de
      * le récupérer dans un fichier .jpg.
      * @param request Requête à envoyer au serveur.
+     * @param nomFichier
      * @throws IOException
      */
     //TODO: La fermeture de input déconne.
-    public void sendGetImage(String request) throws IOException {
+    public void sendGetImage(String request, String nomFichier) throws IOException {
         ImageInputStream input = null;
         BufferedImage img;
+        String adresseFichier="src/Fichier/TP_TCP.Client/"+nomFichier;
         try {
             super.send(request);
 
-            input = ImageIO.createImageInputStream(in);
-            img = ImageIO.read(input);
-            ImageIO.write(img, "jpg", new File("src/Fichier/imagePourClient.jpg"));
+            File fichierCree=new File(adresseFichier);
+            BufferedWriter bwFichierCree=new BufferedWriter(new FileWriter(fichierCree));
+            System.out.println("création du fichier "+adresseFichier);
+
+//            input = ImageIO.createImageInputStream(in);
+//            img = ImageIO.read(input);
+
+            int car = br.read();
+            while (car != -1 && (char)car!=EOF) {
+//                System.out.print((char)car );
+                bwFichierCree.write(car);
+                car=br.read();
+            }
+            bwFichierCree.close();
+            System.out.println("l'image en provenace du serveur a été enregistrée");
+//            ImageIO.write(img, "jpg", new File("src/Fichier/imagePourClient.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -108,6 +124,12 @@ public class Client extends Util {
             }
             out.write('\u001a');  //on écrit le caractère EOF
             out.flush();
+
+            int car = br.read();
+            while (car != -1 && (char)car != '\u001a') {
+                System.out.print((char)car);
+                car = br.read();
+            }
         } catch (FileNotFoundException e) {
 //            response = getResponse(404, address);
 //            send(response);
@@ -120,7 +142,7 @@ public class Client extends Util {
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
         }
-        System.out.println("requète PUT envoyée");
+        //System.out.println("requète PUT envoyée");
 
     }
 
@@ -137,14 +159,14 @@ public class Client extends Util {
                     case "GET":
                         System.out.println("Veuillez renseigner le nom du fichier");
                         nomFichier = sc.next();
-                        requete = typeRequete + " src/Fichier/Serveur/" + nomFichier + " HTTP/1.1";
+                        requete = typeRequete + " src/Fichier/TP_TCP.Serveur/" + nomFichier + " HTTP/1.1";
                         if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
-                        // if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete);
+                        if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete,nomFichier);
                         break;
                     case "PUT":
                         System.out.println("Veuillez renseigner le nom du fichier a transferer");
                          nomFichier = sc.next();
-                         String adresseLocale ="src/Fichier/Client/" + nomFichier;
+                         String adresseLocale ="src/Fichier/TP_TCP.Client/" + nomFichier;
                          sendPut(adresseLocale,nomFichier);
                         break;
                     case "CLOSE":
