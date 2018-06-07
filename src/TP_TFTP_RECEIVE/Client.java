@@ -1,6 +1,7 @@
 package TP_TFTP_RECEIVE;
 
 
+import javax.xml.crypto.Data;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
@@ -37,6 +38,7 @@ public class Client {
     public short receiveFile(String nomFichierLocal,String adresseDistante){
         return 0;
     }
+
     //Il crée une requète RRQ pour le fichier donné en argument, le mode est octet
     static public byte[] faireDemandeFichier(String nomFichier){
         String mode="octet";
@@ -58,5 +60,15 @@ public class Client {
         return requete;
 
 
+    }
+
+    //NbPaquet représente le code du paquet qui a été reçu
+    private void  envoitAck(byte[] nbPaquet){
+        byte[] bienRecu={0,ACK,nbPaquet[0],nbPaquet[1]};
+
+        DatagramPacket retour= new DatagramPacket(bienRecu,bienRecu.length,inetAddress,)
+        try{
+            data
+        }
     }
 }
