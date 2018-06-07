@@ -1,9 +1,9 @@
 package TP_TFTP;
 
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 
 public class Client {
+
 
     DatagramSocket ds;
     static final int portTFTP=69;
@@ -12,12 +12,16 @@ public class Client {
     static final int TRANSFERT_ERROR=1;
 
 
+
+    public Client(){
+
+    }
+
     public static void main (String[] arg){
 
-    }
-/*
-    public short SendFile(String nomFichierLocal,String adresseDistante){
 
     }
-   */
+
+
+
 }
