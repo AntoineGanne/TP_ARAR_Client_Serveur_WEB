@@ -1,11 +1,6 @@
 package TP_TFTP_RECEIVE;
 
-import java.io.*;
 import java.net.*;
-
-
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,7 +8,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-//Inspiré de https://javapapers.com/java/java-tftp-client/
 public class Client {
 
     private static final int SUCCESS=0;
@@ -35,7 +29,6 @@ public class Client {
         try {
             String lisible = new String(rq, "UTF-8");
             System.out.println(lisible);
-            rq
         }
         catch(IOException e){
             System.out.println("BUg");
@@ -99,8 +92,8 @@ public class Client {
 
     // Il crée une requète RRQ pour le fichier donné en argument, le mode est octet
     static public byte[] faireDemandeFichier(String nomFichier){
-        String mode="octet";
-        int requeteTaille=4+nomFichier.length()+mode.length();
+        String mode = "octet";
+        int requeteTaille =4+nomFichier.length()+mode.length();
 
         byte[] requete=new byte[requeteTaille];
 

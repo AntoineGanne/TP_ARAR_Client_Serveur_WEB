@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 public class Client {
+
     DatagramSocket ds;
     static final int portTFTP=69;
     static final int SUCCESS=0;
