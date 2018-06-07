@@ -53,6 +53,7 @@ public class Client {
         }
     }
 
+
     public void receiveFile() {
         byte[] buffer;
         byte[] entete = new byte[2];
@@ -113,4 +114,9 @@ public class Client {
 
     }
 
+    //NbPaquet représente le code du paquet qui a été reçu
+    private void  envoitAck(byte[] nbPaquet){
+        byte[] bienRecu={0,ACK,nbPaquet[0],nbPaquet[1]};
+    }
 }
+
