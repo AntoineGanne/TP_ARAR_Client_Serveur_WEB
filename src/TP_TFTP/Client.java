@@ -14,8 +14,9 @@ public class Client {
     public static void main (String[] arg){
 
     }
-
+/*
     public short SendFile(String nomFichierLocal,String adresseDistante){
 
     }
+   */
 }
