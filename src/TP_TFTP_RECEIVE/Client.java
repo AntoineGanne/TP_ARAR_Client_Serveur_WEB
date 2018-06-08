@@ -94,9 +94,11 @@ public class Client {
     public int receive(String fichierLocal, String adresseDistante) {
         byte[] buffer;
         byte[] datas = new byte[512];
-        int compteur = 0;
+        int compteurDTG = 0;
+        int compteurDATA = 0;
         int cr_rv = 0;
         boolean end = false;
+        boolean perte = true;
         try {
             OutputStream out = new FileOutputStream(fichierLocal);
             while (!end) {
@@ -104,28 +106,46 @@ public class Client {
                 dp = new DatagramPacket(buffer, buffer.length);
                 ds.receive(dp);
 
-                compteur++;
-                System.out.println("Réception du paquet TFTP n°" + compteur + ".");
+                compteurDTG++;
+                System.out.println("Réception du paquet TFTP n°" + compteurDTG + ".");
 
                 // On récupère le nouveau port de Pumpkin.
                 portPumpkin = dp.getPort();
-                System.out.println("Taille du paquet : " + dp.getLength() + " octets.\n");
+                System.out.println("Taille du paquet : " + dp.getLength() + " octets.");
 
                 byte[] opCode = {buffer[0], buffer[1]}; // OPCODE & ERROR CODE
                 if (opCode[1] == DATA) {
                     // On récupère la partie "datas" du paquet TFTP datas.
                     System.arraycopy(buffer, 4, datas, 0, buffer.length - 4);
-                    // On les écrit dans le fichier local.
-                    out.write(datas);
+                    // On les écrit dans le fichier local si le numéro DATA est différent.
+                    if (compteurDATA != (buffer[2] | buffer[3])) {
+                        System.out.println("Ecriture de données dans le fichier local...");
+                        out.write(datas);
+                        compteurDATA++;
+                    }
 
                     // On envoie le paquet ACK.
+                    System.out.println("DATA n°" + buffer[3]);
                     byte[] ack = {0, ACK, buffer[2], buffer[3]};
                     send(ack, adresseDistante);
+                    /*
+                    if (compteurDATA != 2) {
+                        send(ack, adresseDistante);
+                        System.out.println("compteurDATA != 2");
+                    } else {
+                        System.out.println("compteurDATA == 2");
+                        perte = !perte;
+                        if (perte) {
+                            send(ack, adresseDistante);
+                            System.out.println("sendACK");
+                        }
+                    }
+                    */
 
                     // On vérifie si le DTG reçu est le dernier ou non.
                     end = (dp.getLength() < sizePackets);
                 } else if (opCode[1] == ERROR) {
-                    //TODO: A completer
+                    //TODO: A completer.
                     System.out.println("Le serveur Pumpkin n'a pas pu vous envoyer des datas !");
                     cr_rv = 1;
                 }
