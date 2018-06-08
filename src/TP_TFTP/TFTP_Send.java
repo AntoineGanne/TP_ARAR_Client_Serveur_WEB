@@ -39,15 +39,24 @@ public class TFTP_Send  extends TFTP_util{
     }
 
 
-    public void sendWRQ(String nomFichierLocal,InetAddress adresseDistante){
-        String contenuWRQ=separateur+WRQ+nomFichierLocal+(byte)0+"octet"+(byte)0;
-        writeBytesOfString(contenuWRQ);
+    public void sendWRQ(String nomFichier,InetAddress adresseDistante){
+        //String contenuWRQ=separateur+WRQ+nomFichier+(byte)0+"octet"+(byte)0;
+        //writeBytesOfString(contenuWRQ);
 
-
+        String mode="octet";
+        int tailleContenuWRQ=1+1+nomFichier.length()+1+mode.length()+1;
+        byte[] contenuWRQ =new byte[tailleContenuWRQ];
+        contenuWRQ[0]=separateur;
+        contenuWRQ[1]=WRQ;
+        // copie des bytes de nomFichier dans contenuWRQ
+        System.arraycopy(nomFichier.getBytes(),0,contenuWRQ,2,nomFichier.length());
+        contenuWRQ[2+nomFichier.length()]=separateur;
+        System.arraycopy(mode.getBytes(),0,contenuWRQ,3+nomFichier.length(),mode.length());
+        contenuWRQ[tailleContenuWRQ-1]=separateur;
 
        DatagramPacket dp;
         try {
-            dp = new DatagramPacket(contenuWRQ.getBytes(),contenuWRQ.length(),adresseDistante,portTFTP);
+            dp = new DatagramPacket(contenuWRQ,contenuWRQ.length,adresseDistante,portTFTP);
             ds.send(dp);
         } catch (UnknownHostException e) {
             e.printStackTrace();
