@@ -77,13 +77,13 @@ public class Client extends Util {
     public void sendGetImage(String request, String nomFichier) throws IOException {
         ImageInputStream input = null;
         BufferedImage img;
-        String adresseFichier="src/Fichier/TP_TCP.Client/"+nomFichier;
+        String adresseFichier="src/Fichier/Client/"+nomFichier;
         try {
             super.send(request);
 
             File fichierCree=new File(adresseFichier);
             BufferedWriter bwFichierCree=new BufferedWriter(new FileWriter(fichierCree));
-            System.out.println("création du fichier "+adresseFichier);
+            System.out.println("Création du fichier "+adresseFichier);
 
 //            input = ImageIO.createImageInputStream(in);
 //            img = ImageIO.read(input);
@@ -95,28 +95,23 @@ public class Client extends Util {
                 car=br.read();
             }
             bwFichierCree.close();
-            System.out.println("l'image en provenace du serveur a été enregistrée");
+            System.out.println("L'image en provenace du serveur a été enregistrée.\n");
 //            ImageIO.write(img, "jpg", new File("src/Fichier/imagePourClient.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            // if (input != null) input.close();
         }
     }
 
 
     public void sendPut(String adresseFichierLocal, String nomFichier) throws IOException {
-        String requete="PUT "+  nomFichier+CRLF;
+        String requete="PUT "+  nomFichier+ " HTTP 1.1" + CRLF;
         super.send(requete);
 
         FileInputStream fis = null;
         BufferedReader brFis = null;
-        String response;
         try {
             fis = new FileInputStream(adresseFichierLocal);
             brFis = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
-//            response = getResponse(200, adresseFichierLocal);
-//            out.write(response.getBytes());
 
             int c;
             while ((c = brFis.read()) != -1) {
@@ -131,9 +126,7 @@ public class Client extends Util {
                 car = br.read();
             }
         } catch (FileNotFoundException e) {
-//            response = getResponse(404, address);
-//            send(response);
-            System.out.println("fichier introuvable");
+            System.out.println("Fichier introuvable.");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -151,22 +144,22 @@ public class Client extends Util {
         while (connexionEstActive()) {
             try {
                 Scanner sc = new Scanner(System.in);
-                System.out.println("Veuillez renseigner la nature de votre requete (GET / PUT / CLOSE)");
+                System.out.println("Veuillez renseigner la nature de votre requete (GET / PUT / CLOSE) :");
                 String typeRequete = sc.next().toUpperCase();  // Permet au client de pouvoir écrire le type en minuscule.
 
                 String nomFichier,requete;
                 switch (typeRequete){
                     case "GET":
-                        System.out.println("Veuillez renseigner le nom du fichier");
+                        System.out.println("Veuillez renseigner le nom du fichier :");
                         nomFichier = sc.next();
-                        requete = typeRequete + " src/Fichier/TP_TCP.Serveur/" + nomFichier + " HTTP/1.1";
+                        requete = typeRequete + " src/Fichier/Serveur/" + nomFichier + " HTTP/1.1";
                         if (nomFichier.endsWith(".html") || nomFichier.endsWith(".txt")) sendGet(requete);
                         if (nomFichier.endsWith(".jpg") || nomFichier.endsWith(".jpeg")) sendGetImage(requete,nomFichier);
                         break;
                     case "PUT":
-                        System.out.println("Veuillez renseigner le nom du fichier a transferer");
+                        System.out.println("Veuillez renseigner le nom du fichier à transférer :");
                          nomFichier = sc.next();
-                         String adresseLocale ="src/Fichier/TP_TCP.Client/" + nomFichier;
+                         String adresseLocale ="src/Fichier/Client/" + nomFichier;
                          sendPut(adresseLocale,nomFichier);
                         break;
                     case "CLOSE":

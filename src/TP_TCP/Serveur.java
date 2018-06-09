@@ -91,8 +91,7 @@ public class Serveur extends Util {
                         if (address.endsWith("html") || (address.endsWith(".txt"))) fileFromServerToClient(address);
                         if (address.endsWith(".jpeg") || (address.endsWith(".jpg")) || (address.endsWith(".png")) ) imageFromServerToClient(address);
                     } else if (method.equals("PUT")) {
-                        //System.out.println("A faire...");
-                        String adresseFichier="src/Fichier/TP_TCP.Serveur/"+st.nextToken();
+                        String adresseFichier="src/Fichier/Serveur/"+st.nextToken();
 //                        System.out.println("adresseFichier: "+adresseFichier);
                         traitementPUT(adresseFichier);
                     }else if(method.equals("CLOSE")){
@@ -116,7 +115,7 @@ public class Serveur extends Util {
         try {
             File fichierCree=new File(adresseFichier);
             BufferedWriter bwFichierCree=new BufferedWriter(new FileWriter(fichierCree));
-            System.out.println("création du fichier "+adresseFichier);
+            System.out.println("Création du fichier "+adresseFichier);
             int car = br.read();
             while (car != -1 && (char)car!='\u001a') {
                 System.out.print((char)car );
@@ -157,8 +156,8 @@ public class Serveur extends Util {
         } catch (FileNotFoundException e) {
             response = getResponse(404, address);
             send(response + EOF);
-            System.out.println("Un client a demandé un fichier qui ne se trouve pas sur ce serveur \n"
-                    +"fichier demandé: "+address);
+            System.out.println("Un client a demandé un fichier qui ne se trouve pas sur ce serveur. \n"
+                    +"Fichier demandé : "+address);
         } finally {
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
@@ -192,14 +191,14 @@ public class Serveur extends Util {
         String contentType = "text/html";
         switch (code) {
             case 200:
-                response.append("HTTP/1.0 200 OK" + CRLF);
+                response.append("HTTP/1.1 200 OK" + CRLF);
                 contentType = getContentType(address);
                 break;
             case 404:
-                response.append("HTTP/1.0 404 Not Found" + CRLF);
+                response.append("HTTP/1.1 404 Not Found" + CRLF);
                 break;
             case 501:
-                response.append("HTTP/1.0 501 Not Implemented" + CRLF);
+                response.append("HTTP/1.1 501 Not Implemented" + CRLF);
                 break;
         }
         if (address != null) {
