@@ -21,7 +21,7 @@ public class Client {
 
     public static void main(String[] arg) {
         Client c = new Client();
-        int cr_rv = c.receiveFile("src/Fichier/Client/testPump.html", "src/Fichier/Serveur/testPump.html", serverPumpkin);
+        int cr_rv = c.receiveFile("src/Fichier/Client/JojoGood.gif", "src/Fichier/Serveur/JojoGood.gif", serverPumpkin);
         System.out.println("cr_rv : " + cr_rv);
     }
 
