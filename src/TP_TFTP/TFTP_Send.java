@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 public class TFTP_Send  extends TFTP_util{
     static String dossierFichiers="fichiers_Pumpkin/";
+    static int portPumpkin;
 
 
     public static void main(String[] arg){
@@ -17,8 +18,9 @@ public class TFTP_Send  extends TFTP_util{
         try {
             InetAddress ipServeur =InetAddress.getByName("127.0.0.1");
             TFTP_Send t=new TFTP_Send();
-            t.sendWRQ("t.txt",ipServeur);
-            t.ecouteACK(0);
+//            t.sendWRQ("t.txt",ipServeur);
+////            t.ecouteACK(0);
+            t.sendFile("t.txt","127.0.0.1");
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -40,8 +42,8 @@ public class TFTP_Send  extends TFTP_util{
         }
     }
 
-    public int sendData(short numBloc, byte[] fileData,InetAddress adresseDistante){
-        int tailleContenu=4+fileData.length;
+    public int sendData(short numBloc, byte[] fileData, int nbBytes, InetAddress adresseDistante){
+        int tailleContenu=4+nbBytes;
         byte[] data=new byte[tailleContenu];
         data[0]=separateur;
         data[1]=DATA;
@@ -49,7 +51,7 @@ public class TFTP_Send  extends TFTP_util{
         data[2]=separateur;
         data[3]=(byte)numBloc;
 
-        System.arraycopy(fileData,0,data,2,fileData.length);
+        System.arraycopy(fileData,0,data,2,nbBytes);
 
         DatagramPacket dp;
         short codeRetourData=send(adresseDistante, data);
@@ -120,7 +122,7 @@ public class TFTP_Send  extends TFTP_util{
         }
     }
 
-    public short SendFile(String nomFichierLocal,String adresseDistante){
+    public short sendFile(String nomFichierLocal,String adresseDistante){
         InetAddress ipServeur;
         try {
             ipServeur =InetAddress.getByName(adresseDistante);
@@ -142,16 +144,19 @@ public class TFTP_Send  extends TFTP_util{
             brFis = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
 
             int c;
-
+            int nbBytes=512;
             for(int i=0;i<512;i++){
                 c=brFis.read();
-                if(c==-1) break;
+                if(c==-1) {
+                    nbBytes=i;
+                    break;
+                }
                 else{
                     fileData[i]=(byte)c;
                 }
             }
 
-            sendData((short)1,fileData,ipServeur);
+            sendData((short)1,fileData,nbBytes,ipServeur);
 
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
