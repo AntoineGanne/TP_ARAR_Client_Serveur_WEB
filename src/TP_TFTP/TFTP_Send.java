@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 
 public class TFTP_Send  extends TFTP_util{
-    static String dossierFichiers="fichiers_Pumpkin/";
+    static String dossierFichiers="fichiersClient/";
     static int portPumpkin;
 
 
@@ -31,6 +31,7 @@ public class TFTP_Send  extends TFTP_util{
 
     public TFTP_Send(){
         super();
+        portPumpkin=super.portTFTP;
     }
 
     public void writeBytesOfString(String s){
@@ -66,7 +67,7 @@ public class TFTP_Send  extends TFTP_util{
     private short send(InetAddress adresseDistante, byte[] data) {
         DatagramPacket dp;
         try {
-            dp = new DatagramPacket(data,data.length,adresseDistante,portTFTP);
+            dp = new DatagramPacket(data,data.length,adresseDistante,portPumpkin);
             ds.send(dp);
 
         } catch (UnknownHostException e) {
@@ -108,7 +109,9 @@ public class TFTP_Send  extends TFTP_util{
         DatagramPacket dp=new DatagramPacket(ack,ack.length);
         try {
             ds.receive(dp);
-            System.out.println("recoit dans ACK:"+Arrays.toString(dp.getData()));
+            System.out.println("recoit dans ACK:"+Arrays.toString(dp.getData())+"\n"
+            +"  sur le port "+dp.getPort());
+            portPumpkin=dp.getPort();
         } catch (IOException e) {
             e.printStackTrace();
         }
