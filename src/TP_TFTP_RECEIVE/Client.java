@@ -21,9 +21,8 @@ public class Client {
 
     public static void main(String[] arg) {
         Client c = new Client();
-        int cr_rv = c.receiveFile("src/Fichier/Client/truc.gif", "src/Fichier/Serveur/JojoGood.gif", serverPumpkin);
-        if (cr_rv != 0) System.err.println("cr_rv : " + cr_rv);
-        else System.out.println("cr_rv : " + cr_rv);
+        int cr_rv = c.receiveFile("src/Fichier/Client/JojoGood.gif", "src/Fichier/Serveur/JojoGood.gif", serverPumpkin);
+        System.out.println("cr_rv : " + cr_rv);
     }
 
     public Client() {
