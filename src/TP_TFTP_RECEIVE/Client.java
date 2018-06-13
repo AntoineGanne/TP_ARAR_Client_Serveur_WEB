@@ -13,7 +13,7 @@ public class Client {
     private static final byte ACK = 4;
     private static final byte ERROR = 5;
 
-    private static final String serverPumpkin = "127.0.0.1";
+    private static final String serverPumpkin = "192.168.43.94";
     private static int portPumpkin = 69;
     private DatagramSocket ds;
     private DatagramPacket dp; // DTG reçu du serveur.
@@ -52,7 +52,7 @@ public class Client {
     public boolean fileNotExists(String nomFichier) {
 
         if (!nomFichier.contains(".")) {
-            System.out.println("L'adresse locale donnée ne correspond pas à celle d'un fichier !");
+            System.err.println("L'adresse locale donnée ne correspond pas à celle d'un fichier !");
             return false;
         }
 
@@ -61,13 +61,13 @@ public class Client {
         if (parent != null) {
             File dir = new File(parent);
             if (!(dir.isDirectory() && dir.exists())) {
-                System.out.println("Le repértoire parent " + parent + " n'existe même pas ! Une petite faute de frappe sûrement ?");
+                System.err.println("Le repértoire parent " + parent + " n'existe même pas ! Une petite faute de frappe sûrement ?");
                 return false;
             }
         }
 
         if (!f.exists() && !f.isDirectory()) return true;
-        else System.out.println("Le fichier local " + nomFichier + " indiqué existe déjà ! Créez-en un nouveau pour éviter d'effacer vos précieuses données...");
+        else System.err.println("Le fichier local " + nomFichier + " indiqué existe déjà ! Créez-en un nouveau pour éviter d'effacer vos précieuses données...");
 
         return false;
     }
@@ -81,10 +81,10 @@ public class Client {
             ds.send(dp);
             cr_rv = 0;
         } catch (UnknownHostException e) {
-            System.out.println("IP du serveur Pumpkin introuvable !");
+            System.err.println("IP du serveur Pumpkin introuvable !");
             cr_rv = -1;
         } catch (IOException e) {
-            System.out.println("Le datagramme n'a pas pu être envoyé au serveur Pumpkin !");
+            System.err.println("Le datagramme n'a pas pu être envoyé au serveur Pumpkin !");
             cr_rv = 1;
         }
         return cr_rv;
@@ -95,10 +95,8 @@ public class Client {
         byte[] buffer;
         byte[] datas = new byte[512];
         int compteurDTG = 0;
-        int compteurDATA = 0;
         int cr_rv = 0;
         boolean end = false;
-        boolean perte = true;
         try {
             OutputStream out = new FileOutputStream(fichierLocal);
             while (!end) {
@@ -118,45 +116,31 @@ public class Client {
                     // On récupère la partie "datas" du paquet TFTP datas.
                     System.arraycopy(buffer, 4, datas, 0, buffer.length - 4);
                     // On les écrit dans le fichier local si le numéro DATA est différent.
-                    if (compteurDATA != (buffer[2] | buffer[3])) {
-                        System.out.println("Ecriture de données dans le fichier local...");
-                        out.write(datas);
-                        compteurDATA++;
-                    }
+                    System.out.println("Ecriture de données dans le fichier local...\n");
+                    out.write(datas);
 
                     // On envoie le paquet ACK.
-                    System.out.println("DATA n°" + buffer[3]);
                     byte[] ack = {0, ACK, buffer[2], buffer[3]};
                     send(ack, adresseDistante);
-                    /*
-                    if (compteurDATA != 2) {
-                        send(ack, adresseDistante);
-                        System.out.println("compteurDATA != 2");
-                    } else {
-                        System.out.println("compteurDATA == 2");
-                        perte = !perte;
-                        if (perte) {
-                            send(ack, adresseDistante);
-                            System.out.println("sendACK");
-                        }
-                    }
-                    */
 
-                    // On vérifie si le DTG reçu est le dernier ou non.
+                    // On vérifie si le DTG reçu est le dernier ou no.
                     end = (dp.getLength() < sizePackets);
                 } else if (opCode[1] == ERROR) {
-                    //TODO: A completer.
-                    System.out.println("Le serveur Pumpkin n'a pas pu vous envoyer des datas !");
+                    int err = buffer[3];
+                    System.arraycopy(buffer, 4, datas, 0, buffer.length - 4);
+                    String message = new String(datas);
+                    System.err.println("Erreur " + err + " du serveur : " + message + "\n");
+                    end = true;
                     cr_rv = 1;
                 }
             }
             out.close();
         } catch (FileNotFoundException e) {
             cr_rv = -1;
-            System.out.println("Le fichier local " + fichierLocal + " n'a pas pu être ouvert !");
+            System.err.println("Le fichier local " + fichierLocal + " n'a pas pu être ouvert !");
         } catch (IOException e) {
             cr_rv = -1;
-            System.out.println("Problème de réception de datagrammes ou d'écriture dans le fichier local " + fichierLocal + " !");
+            System.err.println("Problème de réception de datagrammes ou d'écriture dans le fichier local " + fichierLocal + " !");
         }
         return cr_rv;
     }
