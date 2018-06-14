@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class TFTP_Send  extends TFTP_util{
     static String dossierFichiers="fichiersClient/";
@@ -15,13 +16,16 @@ public class TFTP_Send  extends TFTP_util{
     public static void main(String[] arg){
         //String contenuWRQ=WRQ+"1"+separateur+"octet"+separateur;
         //System.out.println(contenuWRQ.getBytes());
+        Scanner sc = new Scanner(System.in);
 
         try {
             InetAddress ipServeur =InetAddress.getByName("127.0.0.1");
             TFTP_Send t=new TFTP_Send();
 //            t.sendWRQ("t.txt",ipServeur);
 ////            t.ecouteACK(0);
-            t.sendFile("yugioh.jpg","127.0.0.1");
+            System.out.println("Veuillez entrer le fichier à envoyer");
+            String f = sc.nextLine();
+            t.sendFile(f,"127.0.0.1");
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
