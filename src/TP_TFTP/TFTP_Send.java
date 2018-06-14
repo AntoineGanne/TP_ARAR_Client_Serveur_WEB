@@ -11,6 +11,7 @@ public class TFTP_Send  extends TFTP_util{
     static String dossierFichiers="fichiersClient/";
     static int portPumpkin;
     static int tailleMaxBloc=512;
+    static String ipServerString="192.168.43.93"; //"127.0.0.1";
 
 
     public static void main(String[] arg){
@@ -19,7 +20,7 @@ public class TFTP_Send  extends TFTP_util{
         Scanner sc = new Scanner(System.in);
 
         try {
-            InetAddress ipServeur =InetAddress.getByName("127.0.0.1");
+            InetAddress ipServeur =InetAddress.getByName(ipServerString);
             TFTP_Send t=new TFTP_Send();
 //            t.sendWRQ("t.txt",ipServeur);
 ////            t.ecouteACK(0);
@@ -30,7 +31,7 @@ public class TFTP_Send  extends TFTP_util{
             File fichier=new File(file);
             if (!fichier.exists()) {
                 System.out.println("Ce fichier n'existe pas");
-            } else t.sendFile(f,"127.0.0.1");
+            } else t.sendFile(f,ipServerString);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -145,7 +146,11 @@ public class TFTP_Send  extends TFTP_util{
 
 
         sendWRQ(nomFichierLocal,ipServeur);
-        ecouteACK(0);
+        int codeRetourAck=ecouteACK(0);
+        if(codeRetourAck==codesRetour.TRANSFERT_ERROR){
+            System.out.println("Write Request refusée ou echouée");
+            return codesRetour.TRANSFERT_ERROR;
+        }
 
         String adresseFichierLocal=dossierFichiers+nomFichierLocal;
         FileInputStream fis = null;
@@ -155,12 +160,6 @@ public class TFTP_Send  extends TFTP_util{
         try {
             file=new File(adresseFichierLocal);
             FileInputStream in=new FileInputStream(adresseFichierLocal);
-//            byte[] fileBytes=in.readAllBytes();
-//            long tailleFichier=fileBytes.length;
-//            long nbBlocs=tailleFichier/tailleMaxBloc;
-            fis = new FileInputStream(file);
-            brFis = new BufferedReader(new InputStreamReader(fis));
-            DataInputStream datIn=new DataInputStream(fis);
             byte byteTemp;
             int intTemp;
             boolean dernierBlocAtteint=false;
@@ -175,7 +174,7 @@ public class TFTP_Send  extends TFTP_util{
 //                    intTemp= brFis.read();
                     intTemp=in.read();
                     if(intTemp==-1) {
-                        nbBytes=i+1;
+                        nbBytes=i;
                         System.out.println("la lecture du fichier a atteint le dernier bloc "+numBloc);
                         dernierBlocAtteint=true;
                         break;
@@ -193,16 +192,6 @@ public class TFTP_Send  extends TFTP_util{
 
                 numBloc++;
             }
-//
-//
-//            for(int b=1;b<nbBlocs;b++) {
-//                in.read(buffer );
-//                sendData((byte) numBloc, fileData,tailleMaxBloc , ipServeur);
-//                short codeRetourACK = ecouteACK(numBloc);
-
-
-            if (brFis != null) brFis.close();
-            if (fis != null) fis.close();
 
         } catch (FileNotFoundException e) {
             System.out.println("Fichier introuvable.");
