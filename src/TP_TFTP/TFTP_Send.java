@@ -11,6 +11,7 @@ public class TFTP_Send  extends TFTP_util{
     static String dossierFichiers="fichiersClient/";
     static int portPumpkin;
     static int tailleMaxBloc=512;
+    static String ipServerString="192.168.43.93"; //"127.0.0.1";
 
 
     public static void main(String[] arg){
@@ -19,13 +20,18 @@ public class TFTP_Send  extends TFTP_util{
         Scanner sc = new Scanner(System.in);
 
         try {
-            InetAddress ipServeur =InetAddress.getByName("127.0.0.1");
+            InetAddress ipServeur =InetAddress.getByName(ipServerString);
             TFTP_Send t=new TFTP_Send();
 //            t.sendWRQ("t.txt",ipServeur);
 ////            t.ecouteACK(0);
-            System.out.println("Veuillez entrer le fichier à envoyer");
+
+            System.out.println("Veuillez entrer le nom du fichier à envoyer");
             String f = sc.nextLine();
-            t.sendFile(f,"127.0.0.1");
+            String file = dossierFichiers+f;
+            File fichier=new File(file);
+            if (!fichier.exists()) {
+                System.out.println("Ce fichier n'existe pas");
+            } else t.sendFile(f,ipServerString);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -60,11 +66,12 @@ public class TFTP_Send  extends TFTP_util{
         System.arraycopy(fileData,0,data,4,nbBytes);
 
         DatagramPacket dp;
-        short codeRetourData=send(adresseDistante, data);
-        System.out.println("Envoi reussi du bloc Data "+numBloc);
-
-
-
+        short cr_em=send(adresseDistante, data);
+        if(cr_em != 0){
+            if(cr_em == -1) return codesRetour.LOCAL_ERROR;
+            if (cr_em == 1) return codesRetour.TRANSFERT_ERROR;
+        }
+        System.out.println("Envoi reussi du bloc Data " + numBloc);
         return codesRetour.SUCCESS;
     }
 
@@ -139,7 +146,11 @@ public class TFTP_Send  extends TFTP_util{
 
 
         sendWRQ(nomFichierLocal,ipServeur);
-        ecouteACK(0);
+        int codeRetourAck=ecouteACK(0);
+        if(codeRetourAck==codesRetour.TRANSFERT_ERROR){
+            System.out.println("Write Request refusée ou echouée");
+            return codesRetour.TRANSFERT_ERROR;
+        }
 
         String adresseFichierLocal=dossierFichiers+nomFichierLocal;
         FileInputStream fis = null;
@@ -149,62 +160,51 @@ public class TFTP_Send  extends TFTP_util{
         try {
             file=new File(adresseFichierLocal);
             FileInputStream in=new FileInputStream(adresseFichierLocal);
-            byte[] fileBytes=in.readAllBytes();
-            long tailleFichier=fileBytes.length;
-            long nbBlocs=tailleFichier/tailleMaxBloc;
-            fis = new FileInputStream(file);
-            brFis = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
-
-            byte c;
+            byte byteTemp;
+            int intTemp;
             boolean dernierBlocAtteint=false;
             int numBloc=1;
 //            for(int b=1;b<nbBlocs;b++){
             while(!dernierBlocAtteint){
                 int nbBytes=512;
                 byte[] fileData=new byte[tailleMaxBloc];
-               // c=in.read(buffer);
 
                 for(int i=0;i<512;i++){
-//                    c= (byte) brFis.read();
-                    c= (byte) brFis.read();
-                    if(c==-1) {
+//                    byteTemp= (byte) brFis.read();
+//                    intTemp= brFis.read();
+                    intTemp=in.read();
+                    if(intTemp==-1) {
                         nbBytes=i;
                         System.out.println("la lecture du fichier a atteint le dernier bloc "+numBloc);
                         dernierBlocAtteint=true;
-                        //sendData((byte)numBloc,buffer,buffer.length,ipServeur);
                         break;
                     }
                     else{
-                        //fileData[i]=(byte)c;
-                        fileData[i]=c;
+                        fileData[i]=(byte)intTemp;
                     }
-
                 }
-//                System.arraycopy(buffer, i, fileBytes, 0, tailleMaxBloc);
-
                 sendData((byte)numBloc,fileData,nbBytes,ipServeur);
 
                 short codeRetourACK=ecouteACK(numBloc);
+                if(codeRetourACK==codesRetour.TRANSFERT_ERROR){
+                    throw new Exception("erreur ACK");
+                }
 
                 numBloc++;
             }
-//
-//
-//            for(int b=1;b<nbBlocs;b++) {
-//                in.read(buffer );
-//                sendData((byte) numBloc, fileData,tailleMaxBloc , ipServeur);
-//                short codeRetourACK = ecouteACK(numBloc);
-
-
-            if (brFis != null) brFis.close();
-            if (fis != null) fis.close();
 
         } catch (FileNotFoundException e) {
             System.out.println("Fichier introuvable.");
+            return codesRetour.LOCAL_ERROR;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            return codesRetour.LOCAL_ERROR;
         } catch (IOException e) {
             e.printStackTrace();
+            return codesRetour.LOCAL_ERROR;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return codesRetour.TRANSFERT_ERROR;
         }
 
         System.out.println("fin de l'envoi de fichier a Pumpkin");

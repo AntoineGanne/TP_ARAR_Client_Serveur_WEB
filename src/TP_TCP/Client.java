@@ -15,7 +15,7 @@ public class Client extends Util {
 
         /*
         try {
-            c.sendGetImage("GET src/Fichier/yugioh.jpg");
+            c.sendGetImage("GET src/Fichier/y.jpg");
         } catch (IOException e) {
             e.printStackTrace();
         }
