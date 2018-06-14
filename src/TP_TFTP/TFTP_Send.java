@@ -172,7 +172,8 @@ public class TFTP_Send  extends TFTP_util{
 
                 for(int i=0;i<512;i++){
 //                    byteTemp= (byte) brFis.read();
-                    intTemp= brFis.read();
+//                    intTemp= brFis.read();
+                    intTemp=in.read();
                     if(intTemp==-1) {
                         nbBytes=i+1;
                         System.out.println("la lecture du fichier a atteint le dernier bloc "+numBloc);
@@ -186,6 +187,9 @@ public class TFTP_Send  extends TFTP_util{
                 sendData((byte)numBloc,fileData,nbBytes,ipServeur);
 
                 short codeRetourACK=ecouteACK(numBloc);
+                if(codeRetourACK==codesRetour.TRANSFERT_ERROR){
+                    throw new Exception("erreur ACK");
+                }
 
                 numBloc++;
             }
@@ -202,10 +206,16 @@ public class TFTP_Send  extends TFTP_util{
 
         } catch (FileNotFoundException e) {
             System.out.println("Fichier introuvable.");
+            return codesRetour.LOCAL_ERROR;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            return codesRetour.LOCAL_ERROR;
         } catch (IOException e) {
             e.printStackTrace();
+            return codesRetour.LOCAL_ERROR;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return codesRetour.TRANSFERT_ERROR;
         }
 
         System.out.println("fin de l'envoi de fichier a Pumpkin");
