@@ -21,7 +21,7 @@ public class TFTP_Send  extends TFTP_util{
             TFTP_Send t=new TFTP_Send();
 //            t.sendWRQ("t.txt",ipServeur);
 ////            t.ecouteACK(0);
-            t.sendFile("yugioh.jpg","127.0.0.1");
+            t.sendFile("t.txt","127.0.0.1");
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -145,39 +145,34 @@ public class TFTP_Send  extends TFTP_util{
         try {
             file=new File(adresseFichierLocal);
             FileInputStream in=new FileInputStream(adresseFichierLocal);
-            byte[] fileBytes=in.readAllBytes();
-            long tailleFichier=fileBytes.length;
-            long nbBlocs=tailleFichier/tailleMaxBloc;
+//            byte[] fileBytes=in.readAllBytes();
+//            long tailleFichier=fileBytes.length;
+//            long nbBlocs=tailleFichier/tailleMaxBloc;
             fis = new FileInputStream(file);
-            brFis = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
-
-            byte c;
+            brFis = new BufferedReader(new InputStreamReader(fis));
+            DataInputStream datIn=new DataInputStream(fis);
+            byte byteTemp;
+            int intTemp;
             boolean dernierBlocAtteint=false;
             int numBloc=1;
 //            for(int b=1;b<nbBlocs;b++){
             while(!dernierBlocAtteint){
                 int nbBytes=512;
                 byte[] fileData=new byte[tailleMaxBloc];
-               // c=in.read(buffer);
 
                 for(int i=0;i<512;i++){
-//                    c= (byte) brFis.read();
-                    c= (byte) brFis.read();
-                    if(c==-1) {
-                        nbBytes=i;
+//                    byteTemp= (byte) brFis.read();
+                    intTemp= brFis.read();
+                    if(intTemp==-1) {
+                        nbBytes=i+1;
                         System.out.println("la lecture du fichier a atteint le dernier bloc "+numBloc);
                         dernierBlocAtteint=true;
-                        //sendData((byte)numBloc,buffer,buffer.length,ipServeur);
                         break;
                     }
                     else{
-                        //fileData[i]=(byte)c;
-                        fileData[i]=c;
+                        fileData[i]=(byte)intTemp;
                     }
-
                 }
-//                System.arraycopy(buffer, i, fileBytes, 0, tailleMaxBloc);
-
                 sendData((byte)numBloc,fileData,nbBytes,ipServeur);
 
                 short codeRetourACK=ecouteACK(numBloc);
