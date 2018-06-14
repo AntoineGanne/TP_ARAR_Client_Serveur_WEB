@@ -5,6 +5,7 @@ import java.net.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Scanner;
 
 /**
  * <p>Un client est principalement caractérisé par :
@@ -40,9 +41,9 @@ public class Client {
      */
     private static final byte ERROR = 5;
     /**
-     * Adresse IP du serveur.
+     * Adresse IP du serveur. Par défaut, il s'agit de l'adresse locale 127.0.0.1.
      */
-    private static final String serverPumpkin = "192.168.43.94";
+    private static String serverPumpkin = "127.0.0.1";
     /**
      * Port d'écoute du serveur.
      */
@@ -62,7 +63,20 @@ public class Client {
 
     public static void main(String[] arg) {
         Client c = new Client();
-        int cr_rv = c.receiveFile("src/Fichier/Client/JojoGood.gif", "src/Fichier/Serveur/JojoGood.gif", serverPumpkin);
+
+        // Récupération des noms de fichier.
+        String fichierServeur, fichierLocal, adresseServeur;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Quel est votre serveur ? Tapez son adresse IP :");
+        serverPumpkin = sc.nextLine();
+        System.out.println("Veuillez renseigner le fichier du serveur à récupérer : ");
+        fichierServeur = "src/Fichier/Serveur/"+sc.nextLine();
+        System.out.println("Où voulez-vous récupérer votre fichier ? Renseignez votre adresse locale : ");
+        fichierLocal = "src/Fichier/Client/"+sc.nextLine();
+        sc.close();
+
+        int cr_rv = c.receiveFile(fichierLocal, fichierServeur, serverPumpkin);
+        // int cr_rv = c.receiveFile("src/Fichier/Client/JojoGood.gif", "src/Fichier/Serveur/JojoGood.gif", serverPumpkin);
         System.out.println("cr_rv : " + cr_rv);
     }
 
