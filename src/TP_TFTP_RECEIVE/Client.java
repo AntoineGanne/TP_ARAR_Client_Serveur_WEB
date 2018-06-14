@@ -6,17 +6,58 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+/**
+ * <p>Un client est principalement caractérisé par :
+ * <ul>
+ *     <li>son datagram socket.</li>
+ *     <li>le dernier datagram packet reçu par le serveur.</li>
+ *     <li>la taille maximale des paquets datagrammes qu'il peut recevoir.</li>
+ *     <li>l'inet address et le port du serveur avec qui il communique.</li>
+ * </ul>
+ * </p>
+ * @see #serverPumpkin
+ * @see #portPumpkin
+ * @see #ds
+ * @see #dp
+ * @see #sizePackets
+ */
 public class Client {
 
+    /**
+     * OPCODE Read Request.
+     */
     private static final byte RRQ = 1;
+    /**
+     * OPCODE Data.
+     */
     private static final byte DATA = 3;
+    /**
+     * OPCODE Acknowledgment.
+     */
     private static final byte ACK = 4;
+    /**
+     * OPCODE Error.
+     */
     private static final byte ERROR = 5;
-
+    /**
+     * Adresse IP du serveur.
+     */
     private static final String serverPumpkin = "192.168.43.94";
+    /**
+     * Port d'écoute du serveur.
+     */
     private static int portPumpkin = 69;
+    /**
+     * Datagramme socket du client.
+     */
     private DatagramSocket ds;
-    private DatagramPacket dp; // DTG reçu du serveur.
+    /**
+     * Dernier paquet reçu du serveur par le client.
+     */
+    private DatagramPacket dp;
+    /**
+     * Taille maximale des paquets que le client peut recevoir.
+     */
     private static final int sizePackets = 516;
 
     public static void main(String[] arg) {
@@ -25,6 +66,9 @@ public class Client {
         System.out.println("cr_rv : " + cr_rv);
     }
 
+    /**
+     * Constructeur de Client.
+     */
     public Client() {
         try {
             ds = new DatagramSocket();
@@ -33,6 +77,13 @@ public class Client {
         }
     }
 
+    /**
+     * Réception d'un fichier distant sur la machine cliente.
+     * @param fichierLocal Fichier qui sera reçu.
+     * @param fichierDistant Fichier du serveur à récupérer.
+     * @param adresseDistante Adresse du serveur.
+     * @return 0 si le transfert s'est bien passé, 1 s'il y a une erreur côté serveur ou -1 s'il y a une erreur côté client.
+     */
     public int receiveFile(String fichierLocal, String fichierDistant, String adresseDistante) {
         int cr_rv;
 
@@ -48,7 +99,11 @@ public class Client {
         return cr_rv;
     }
 
-    // Returne true si le fichier indiqué n'existe pas, false s'il existe ou que le repértoire du fichier n'existe pas.
+    /**
+     * Détermine si un fichier existe ou non.
+     * @param nomFichier Adresse du fichier.
+     * @return True si le fichier indiqué n'existe pas, false s'il existe ou le repértoire parent n'existe pas.
+     */
     public boolean fileNotExists(String nomFichier) {
 
         if (!nomFichier.contains(".")) {
@@ -72,7 +127,12 @@ public class Client {
         return false;
     }
 
-    // Renvoie 0 si l'envoi du datagramme s'est bien passé, 1 s'il y a une erreur côté serveur, -1 s'il y a une erreur côté client.
+    /**
+     * Envoie un datagramme au serveur.
+     * @param request Message à envoyer au serveur.
+     * @param adresseDistante Adresse du serveur.
+     * @return 0 si l'envoi du datagramme s'est bien passé, 1 s'il y a une erreur côté serveur, -1 s'il y a une erreur côté client.
+     */
     public int send(byte[] request, String adresseDistante) {
         int cr_rv;
         try {
@@ -90,7 +150,12 @@ public class Client {
         return cr_rv;
     }
 
-    // Renvoie 0 si le transfert s'est bien passé, 1 s'il y a une erreur côté serveur ou -1 s'il y a une erreur côté client.
+    /**
+     * Permet d'écrire les données reçues par le serveur dans un fichier.
+     * @param fichierLocal Fichier dans lequel écrire.
+     * @param adresseDistante Adresse du serveur.
+     * @return 0 si le transfert s'est bien passé, 1 s'il y a une erreur côté serveur ou -1 s'il y a une erreur côté client.
+     */
     public int receive(String fichierLocal, String adresseDistante) {
         byte[] buffer;
         byte[] datas = new byte[512];
@@ -145,7 +210,11 @@ public class Client {
         return cr_rv;
     }
 
-    // Il crée une requête RRQ pour le fichier donné en argument, le mode est octet.
+    /**
+     * Construit un datagramme TFTP pour la demande de réception d'un fichier sur le serveur.
+     * @param fichierDistant Fichier du serveur à récupérer.
+     * @return Requête en octets.
+     */
     public byte[] demanderFichier(String fichierDistant) {
         String mode = "octet";
         int requeteTaille = 4 + fichierDistant.length() + mode.length();

@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class TFTP_Send  extends TFTP_util{
     static String dossierFichiers="fichiersClient/";
@@ -15,13 +16,21 @@ public class TFTP_Send  extends TFTP_util{
     public static void main(String[] arg){
         //String contenuWRQ=WRQ+"1"+separateur+"octet"+separateur;
         //System.out.println(contenuWRQ.getBytes());
+        Scanner sc = new Scanner(System.in);
 
         try {
             InetAddress ipServeur =InetAddress.getByName("127.0.0.1");
             TFTP_Send t=new TFTP_Send();
 //            t.sendWRQ("t.txt",ipServeur);
 ////            t.ecouteACK(0);
-            t.sendFile("t.txt","127.0.0.1");
+
+            System.out.println("Veuillez entrer le nom du fichier à envoyer");
+            String f = sc.nextLine();
+            String file = dossierFichiers+f;
+            File fichier=new File(file);
+            if (!fichier.exists()) {
+                System.out.println("Ce fichier n'existe pas");
+            } else t.sendFile(f,"127.0.0.1");
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -56,11 +65,12 @@ public class TFTP_Send  extends TFTP_util{
         System.arraycopy(fileData,0,data,4,nbBytes);
 
         DatagramPacket dp;
-        short codeRetourData=send(adresseDistante, data);
-        System.out.println("Envoi reussi du bloc Data "+numBloc);
-
-
-
+        short cr_em=send(adresseDistante, data);
+        if(cr_em != 0){
+            if(cr_em == -1) return codesRetour.LOCAL_ERROR;
+            if (cr_em == 1) return codesRetour.TRANSFERT_ERROR;
+        }
+        System.out.println("Envoi reussi du bloc Data " + numBloc);
         return codesRetour.SUCCESS;
     }
 
