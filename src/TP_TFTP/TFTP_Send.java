@@ -5,22 +5,27 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class TFTP_Send  extends TFTP_util{
     static String dossierFichiers="fichiersClient/";
     static int portPumpkin;
+    static int tailleMaxBloc=512;
 
 
     public static void main(String[] arg){
         //String contenuWRQ=WRQ+"1"+separateur+"octet"+separateur;
         //System.out.println(contenuWRQ.getBytes());
+        Scanner sc = new Scanner(System.in);
 
         try {
             InetAddress ipServeur =InetAddress.getByName("127.0.0.1");
             TFTP_Send t=new TFTP_Send();
 //            t.sendWRQ("t.txt",ipServeur);
 ////            t.ecouteACK(0);
-            t.sendFile("t.txt","127.0.0.1");
+            System.out.println("Veuillez entrer le fichier à envoyer");
+            String f = sc.nextLine();
+            t.sendFile(f,"127.0.0.1");
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -52,14 +57,13 @@ public class TFTP_Send  extends TFTP_util{
         data[2]=separateur;
         data[3]=(byte)numBloc;
 
-        System.arraycopy(fileData,0,data,2,nbBytes);
+        System.arraycopy(fileData,0,data,4,nbBytes);
 
         DatagramPacket dp;
         short codeRetourData=send(adresseDistante, data);
         System.out.println("Envoi reussi du bloc Data "+numBloc);
 
 
-        short codeRetourACK=ecouteACK(numBloc);
 
         return codesRetour.SUCCESS;
     }
@@ -109,8 +113,7 @@ public class TFTP_Send  extends TFTP_util{
         DatagramPacket dp=new DatagramPacket(ack,ack.length);
         try {
             ds.receive(dp);
-            System.out.println("recoit dans ACK:"+Arrays.toString(dp.getData())+"\n"
-            +"  sur le port "+dp.getPort());
+            System.out.println("recoit dans ACK:"+Arrays.toString(dp.getData())+"\n");
             portPumpkin=dp.getPort();
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,7 +128,7 @@ public class TFTP_Send  extends TFTP_util{
         }
     }
 
-    public short sendFile(String nomFichierLocal,String adresseDistante){
+    public short sendFile(String nomFichierLocal,String adresseDistante)  {
         InetAddress ipServeur;
         try {
             ipServeur =InetAddress.getByName(adresseDistante);
@@ -141,28 +144,61 @@ public class TFTP_Send  extends TFTP_util{
         String adresseFichierLocal=dossierFichiers+nomFichierLocal;
         FileInputStream fis = null;
         BufferedReader brFis = null;
-        byte[] fileData=new byte[512];
+        File file=null;
+
         try {
-            fis = new FileInputStream(adresseFichierLocal);
+            file=new File(adresseFichierLocal);
+            FileInputStream in=new FileInputStream(adresseFichierLocal);
+            byte[] fileBytes=in.readAllBytes();
+            long tailleFichier=fileBytes.length;
+            long nbBlocs=tailleFichier/tailleMaxBloc;
+            fis = new FileInputStream(file);
             brFis = new BufferedReader(new InputStreamReader(fis, "UTF-8"), 2048);
 
-            int c;
-            int nbBytes=512;
-            for(int i=0;i<512;i++){
-                c=brFis.read();
-                if(c==-1) {
-                    nbBytes=i;
-                    break;
-                }
-                else{
-                    fileData[i]=(byte)c;
-                }
-            }
+            byte c;
+            boolean dernierBlocAtteint=false;
+            int numBloc=1;
+//            for(int b=1;b<nbBlocs;b++){
+            while(!dernierBlocAtteint){
+                int nbBytes=512;
+                byte[] fileData=new byte[tailleMaxBloc];
+               // c=in.read(buffer);
 
-            sendData((short)1,fileData,nbBytes,ipServeur);
+                for(int i=0;i<512;i++){
+//                    c= (byte) brFis.read();
+                    c= (byte) brFis.read();
+                    if(c==-1) {
+                        nbBytes=i;
+                        System.out.println("la lecture du fichier a atteint le dernier bloc "+numBloc);
+                        dernierBlocAtteint=true;
+                        //sendData((byte)numBloc,buffer,buffer.length,ipServeur);
+                        break;
+                    }
+                    else{
+                        //fileData[i]=(byte)c;
+                        fileData[i]=c;
+                    }
+
+                }
+//                System.arraycopy(buffer, i, fileBytes, 0, tailleMaxBloc);
+
+                sendData((byte)numBloc,fileData,nbBytes,ipServeur);
+
+                short codeRetourACK=ecouteACK(numBloc);
+
+                numBloc++;
+            }
+//
+//
+//            for(int b=1;b<nbBlocs;b++) {
+//                in.read(buffer );
+//                sendData((byte) numBloc, fileData,tailleMaxBloc , ipServeur);
+//                short codeRetourACK = ecouteACK(numBloc);
+
 
             if (brFis != null) brFis.close();
             if (fis != null) fis.close();
+
         } catch (FileNotFoundException e) {
             System.out.println("Fichier introuvable.");
         } catch (UnsupportedEncodingException e) {
