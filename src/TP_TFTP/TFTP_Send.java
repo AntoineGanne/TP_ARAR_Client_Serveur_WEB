@@ -33,7 +33,18 @@ public class TFTP_Send  extends TFTP_util{
                 System.out.println("Ce fichier n'existe pas");
             } else {
                 TFTP_Send t=new TFTP_Send();
-               t.sendFile(f,ipServeurScanned);
+                short cr_em=t.sendFile(f,ipServeurScanned);
+                switch (cr_em){
+                    case codesRetour.SUCCESS:
+                        System.out.println("Envoi effectué sans erreur");
+                        break;
+                    case codesRetour.TRANSFERT_ERROR:
+                        System.out.println("Erreur du au réseau, verifiez le serveur");
+                        break;
+                    case codesRetour.LOCAL_ERROR:
+                        System.out.println("Erreur locale");
+                        break;
+                }
             }
 
         } catch (UnknownHostException e) {
