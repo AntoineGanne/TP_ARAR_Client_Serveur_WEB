@@ -11,7 +11,7 @@ public class TFTP_Send  extends TFTP_util{
     static String dossierFichiers="fichiersClient/";
     static int portPumpkin;
     static int tailleMaxBloc=512;
-    static String ipServerString="192.168.43.93"; //"127.0.0.1";
+    static String defaultIpServer="127.0.0.1";
 
 
     public static void main(String[] arg){
@@ -20,20 +20,35 @@ public class TFTP_Send  extends TFTP_util{
         Scanner sc = new Scanner(System.in);
 
         try {
-            InetAddress ipServeur =InetAddress.getByName(ipServerString);
-            TFTP_Send t=new TFTP_Send();
-//            t.sendWRQ("t.txt",ipServeur);
-////            t.ecouteACK(0);
+            System.out.println("Veuillez entrer l'adresse IP du serveur ('local' for 127.0.0.1");
+            String ipServeurScanned=sc.next().toUpperCase();
+            if(ipServeurScanned.equals("LOCAL")) ipServeurScanned=defaultIpServer;
+            InetAddress ipServeur =InetAddress.getByName(ipServeurScanned);
 
             System.out.println("Veuillez entrer le nom du fichier à envoyer");
-            String f = sc.nextLine();
+            String f = sc.next();
             String file = dossierFichiers+f;
             File fichier=new File(file);
             if (!fichier.exists()) {
                 System.out.println("Ce fichier n'existe pas");
-            } else t.sendFile(f,ipServerString);
+            } else {
+                TFTP_Send t=new TFTP_Send();
+                short cr_em=t.sendFile(f,ipServeurScanned);
+                switch (cr_em){
+                    case codesRetour.SUCCESS:
+                        System.out.println("Envoi effectué sans erreur");
+                        break;
+                    case codesRetour.TRANSFERT_ERROR:
+                        System.out.println("Erreur du au réseau, verifiez le serveur");
+                        break;
+                    case codesRetour.LOCAL_ERROR:
+                        System.out.println("Erreur locale");
+                        break;
+                }
+            }
+
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            System.out.println("Erreur avec l'adresse IP donnée");
         }
 
     }
@@ -153,25 +168,17 @@ public class TFTP_Send  extends TFTP_util{
         }
 
         String adresseFichierLocal=dossierFichiers+nomFichierLocal;
-        FileInputStream fis = null;
-        BufferedReader brFis = null;
-        File file=null;
 
         try {
-            file=new File(adresseFichierLocal);
             FileInputStream in=new FileInputStream(adresseFichierLocal);
-            byte byteTemp;
             int intTemp;
             boolean dernierBlocAtteint=false;
             int numBloc=1;
-//            for(int b=1;b<nbBlocs;b++){
             while(!dernierBlocAtteint){
                 int nbBytes=512;
                 byte[] fileData=new byte[tailleMaxBloc];
 
                 for(int i=0;i<512;i++){
-//                    byteTemp= (byte) brFis.read();
-//                    intTemp= brFis.read();
                     intTemp=in.read();
                     if(intTemp==-1) {
                         nbBytes=i;
